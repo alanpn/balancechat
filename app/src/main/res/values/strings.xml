@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">balance</string>
+    <string name="your_message">Your message</string>
+    <string name="sign_out">Sign out</string>
+    <string name="delete_message">Delete message</string>
+    <string name="settings">Settings</string>
+</resources>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "3874182818",
+    "firebase_url": "https://balancechat-6f37f.firebaseio.com",
+    "project_id": "balancechat-6f37f",
+    "storage_bucket": "balancechat-6f37f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3874182818:android:1db410e6680a469c",
+        "android_client_info": {
+          "package_name": "firebase.balancechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "3874182818-pgtvp1ifar6t848ntucivb951lbp0fmh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "firebase.balancechat",
+            "certificate_hash": "f120b01954c6f7fb06cbc85f20ddc5f8153cae24"
+          }
+        },
+        {
+          "client_id": "3874182818-au0iecqumipj2p0tnnfdi3gh0p8j7dq9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2p0fGK7He-P-TJ9_o4B1XQwfuwONVoFo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "3874182818-au0iecqumipj2p0tnnfdi3gh0p8j7dq9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
