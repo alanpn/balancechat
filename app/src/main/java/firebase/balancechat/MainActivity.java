@@ -24,7 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     private static int SIGN_IN_REQUEST_CODE = 1;
-    private FirebaseListAdapter<ChatMessage> adapter;
     RelativeLayout activity_main;
     FloatingActionButton fab;
 
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayChatMessage() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
-        adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference()) {
+        FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference()) {
 
             @Override
             protected void populateView(View v, ChatMessage model, int position) {
