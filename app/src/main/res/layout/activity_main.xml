@@ -9,28 +9,28 @@
     tools:ignore="ExtraText">
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/fab1"
+        android:layout_width="42dp"
+        android:layout_height="45dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:clickable="true"
+
         android:enabled="false"
         android:focusable="true"
-        android:src="@drawable/ic_send"
         android:tint="@android:color/white"
-        app:backgroundTint="?android:attr/colorEdgeEffect"
+        app:backgroundTint="@color/colorPrimary"
         app:elevation="0dp"
-        app:fabSize="mini"
-        tools:ignore="NewApi" />
+        app:fabSize="normal" />
     <!-- android:enabled - запрет на отправку пустого сообщения -->
+    <!--android:src="@drawable/ic_send"-->
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="47dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/fab">
+        android:layout_toStartOf="@+id/fab1">
 
         <EditText
             android:id="@+id/input"
@@ -45,7 +45,7 @@
         android:id="@+id/list_of_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/fab"
+        android:layout_above="@+id/fab1"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="16dp"
@@ -53,4 +53,5 @@
         android:dividerHeight="16dp"
         android:stackFromBottom="true"
         android:transcriptMode="alwaysScroll" />
+
 </RelativeLayout>

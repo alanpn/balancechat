@@ -20,26 +20,40 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
-    private static int SIGN_IN_REQUEST_CODE = 1;
+    private static final int SIGN_IN_REQUEST_CODE = 1;
     RelativeLayout activity_main;
     FloatingActionButton fab;
 
+    /* select one of the menu items */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_sign_out) {
             AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    Snackbar.make(activity_main, "Log out", Snackbar.LENGTH_SHORT).show();
-                    finish();
+                    Snackbar.make(activity_main, "You signed out of the account.", Snackbar.LENGTH_SHORT).show();
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(Arrays.asList(
+                                            new AuthUI.IdpConfig.EmailBuilder().build(),
+                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
+                                            new AuthUI.IdpConfig.GoogleBuilder().build()))
+                                    .build(),
+                            SIGN_IN_REQUEST_CODE);
+                    displayChatMessage();
                 }
             });
         }
         if (item.getItemId() == R.id.message_delete) {
-            // move1
+            /* deleting */
         }
         return true;
     }
@@ -51,15 +65,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /* connection test at the entry */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (requestCode == SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Snackbar.make(activity_main, "You are logged. Welcome", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
                 displayChatMessage();
             } else {
-                Snackbar.make(activity_main, "Login Failed. Please Try Again", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(activity_main, "Login Failed. Please Try Again.", Snackbar.LENGTH_SHORT).show();
                 finish();
             }
         }
@@ -70,27 +86,41 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
-        fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {
+
+            /* push/input into DB */
             @Override
             public void onClick(View view) {
                 EditText input = findViewById(R.id.input);
                 FirebaseDatabase.getInstance().getReference().push().setValue(new ChatMessage(input.getText().toString(),
-                        FirebaseAuth.getInstance().getCurrentUser().getEmail()));
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()));
                 input.setText("");
             }
         });
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().build(), SIGN_IN_REQUEST_CODE);
 
+        /* auth test */
+        if (user != null) {
+            Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+            displayChatMessage();
         } else {
-            Snackbar.make(activity_main, "Welcome" + FirebaseAuth.getInstance().getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setAvailableProviders(Arrays.asList(
+                                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                                    new AuthUI.IdpConfig.PhoneBuilder().build(),
+                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
+                            .build(),
+                    SIGN_IN_REQUEST_CODE);
             displayChatMessage();
         }
     }
 
+    /* DB output */
     private void displayChatMessage() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
         FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference()) {
@@ -106,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
 
                 messageText.setText(model.getMessageText());
                 messageUser.setText(model.getMessageUser());
-                messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", model.getMessageTime()));
+                messageTime.setText(DateFormat.format("h:mm a", model.getMessageTime()));
             }
         };
         listOfMessage.setAdapter(adapter);
     }
+
+
 }

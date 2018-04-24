@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "firebase.balancechat"
         minSdkVersion 21
@@ -38,6 +39,7 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.google.firebase:firebase-core:15.0.0'
     implementation 'com.firebaseui:firebase-ui:1.2.0'
+    implementation 'com.firebaseui:firebase-ui-auth:3.3.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
