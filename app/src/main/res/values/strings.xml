@@ -5,4 +5,5 @@
     <string name="delete_message">Delete message</string>
     <string name="settings">Account settings</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="default_notification_channel_id">Channel ID</string>
 </resources>

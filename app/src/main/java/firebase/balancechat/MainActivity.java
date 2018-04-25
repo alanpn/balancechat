@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,14 +23,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.RemoteMessage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Arrays;
 import java.util.Objects;
 
+import firebase.balancechat.services.MyFirebaseMessagingService;
+
 public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 1;
+    private static final String TAG = "MyFirebaseMsgService";
     RelativeLayout activity_main;
     FloatingActionButton fab;
+
 
     /* select one of the menu items */
     @Override
@@ -53,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         if (item.getItemId() == R.id.message_delete) {
-            /* deleting */
+            /* TODO: on deleting */
         }
         return true;
     }
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         setContentView(R.layout.activity_main);
@@ -96,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EditText input = findViewById(R.id.input);
-                FirebaseDatabase.getInstance().getReference().push().setValue(new ChatMessage(input.getText().toString(),
+                FirebaseDatabase.getInstance().getReference().child("messages").push().setValue(new ChatMessage(input.getText().toString(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()));
                 input.setText("");
             }
@@ -123,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     /* DB output */
     private void displayChatMessage() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
-        FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference()) {
+        FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child("messages")) {
 
             @Override
             protected void populateView(View v, ChatMessage model, int position) {
@@ -141,6 +149,5 @@ public class MainActivity extends AppCompatActivity {
         };
         listOfMessage.setAdapter(adapter);
     }
-
 
 }
