@@ -1,10 +1,9 @@
-package firebase.balancechat.services;
+package firebase.balancechat.notifications;
 
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
-
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 

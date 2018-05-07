@@ -1,6 +1,9 @@
 package firebase.balancechat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -11,10 +14,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
@@ -23,17 +28,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.messaging.RemoteMessage;
-import com.google.firebase.storage.StorageReference;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-import firebase.balancechat.services.MyFirebaseMessagingService;
-
 public class MainActivity extends AppCompatActivity {
-    private static final int SIGN_IN_REQUEST_CODE = 1;
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final int SIGN_IN_REQUEST_CODE = 123;
+    private static final String TAG = "MainActivity";
     RelativeLayout activity_main;
     FloatingActionButton fab;
 
@@ -46,21 +49,13 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     Snackbar.make(activity_main, "You signed out of the account.", Snackbar.LENGTH_SHORT).show();
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setAvailableProviders(Arrays.asList(
-                                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
-                                            new AuthUI.IdpConfig.GoogleBuilder().build()))
-                                    .build(),
-                            SIGN_IN_REQUEST_CODE);
+                    requestSignIn();
                     displayChatMessage();
                 }
             });
         }
         if (item.getItemId() == R.id.message_delete) {
-            /* TODO: on deleting */
+            // TODO: on tap
         }
         return true;
     }
@@ -95,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
         fab = findViewById(R.id.fab1);
@@ -115,18 +111,59 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
             displayChatMessage();
         } else {
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(Arrays.asList(
-                                    new AuthUI.IdpConfig.EmailBuilder().build(),
-                                    new AuthUI.IdpConfig.PhoneBuilder().build(),
-                                    new AuthUI.IdpConfig.GoogleBuilder().build()))
-                            .build(),
-                    SIGN_IN_REQUEST_CODE);
+            requestSignIn();
             displayChatMessage();
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            String channelId = getString(R.string.default_notification_channel_id);
+            String channelName = getString(R.string.default_notification_channel_name);
+            NotificationManager notificationManager =
+                    getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(new NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_LOW));
+        }
+
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d(TAG, "Key: " + key + " Value: " + value);
+            }
+        }
+        // [END handle_data_extras]
+
+        Button subscribeButton = findViewById(R.id.subscribeButton);
+        subscribeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // [START subscribe_topics]
+                FirebaseMessaging.getInstance().subscribeToTopic("News");
+                // [END subscribe_topics]
+
+                // Log and toast
+                String msg = getString(R.string.msg_subscribed);
+                Log.d(TAG, msg);
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button logTokenButton = findViewById(R.id.logTokenButton);
+        logTokenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get token
+                String token = FirebaseInstanceId.getInstance().getToken();
+
+                // Log and toast
+                String msg = getString(R.string.msg_token_fmt, token);
+                Log.d(TAG, msg);
+                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
+
 
     /* DB output */
     private void displayChatMessage() {
@@ -148,6 +185,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         listOfMessage.setAdapter(adapter);
+    }
+
+    private void requestSignIn() {
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setIsSmartLockEnabled(false, true)
+                        .setAvailableProviders(Arrays.asList(
+                                new AuthUI.IdpConfig.EmailBuilder().build(),
+                                new AuthUI.IdpConfig.PhoneBuilder().build(),
+                                new AuthUI.IdpConfig.GoogleBuilder().build()))
+                        .build(),
+                SIGN_IN_REQUEST_CODE);
     }
 
 }

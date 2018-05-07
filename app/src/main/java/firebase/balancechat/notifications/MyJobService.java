@@ -1,4 +1,4 @@
-package firebase.balancechat.services;
+package firebase.balancechat.notifications;
 
 import android.util.Log;
 
