@@ -1,5 +1,6 @@
 package firebase.balancechat;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
@@ -8,10 +9,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +28,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,19 +37,42 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 123;
     private static final String TAG = "MainActivity";
-    RelativeLayout activity_main;
-    FloatingActionButton fab;
+    private RelativeLayout activity_main;
+    private FloatingActionButton fab;
+//    public Toolbar toolbar = findViewById(R.id.toolbar);
 
 
-    /* select one of the menu items */
+    /* menu items select */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_settings) {
+            // TODO: on tap menu_settings.
+            Snackbar.make(activity_main, "No action.", Snackbar.LENGTH_SHORT).show();
+        }
+
+        if (item.getItemId() == R.id.message_delete) {
+            // TODO: on tap message_delete.
+            Snackbar.make(activity_main, "No action.", Snackbar.LENGTH_SHORT).show();
+        }
+
         if (item.getItemId() == R.id.menu_sign_out) {
             AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -54,14 +83,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        if (item.getItemId() == R.id.message_delete) {
-            // TODO: on tap
-        }
         return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
 
@@ -90,9 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         fab = findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {
 
@@ -115,8 +146,8 @@ public class MainActivity extends AppCompatActivity {
             displayChatMessage();
         }
 
+        /* create channel to show notifications. */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create channel to show notifications.
             String channelId = getString(R.string.default_notification_channel_id);
             String channelName = getString(R.string.default_notification_channel_name);
             NotificationManager notificationManager =
@@ -131,23 +162,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Key: " + key + " Value: " + value);
             }
         }
-        // [END handle_data_extras]
 
-        Button subscribeButton = findViewById(R.id.subscribeButton);
-        subscribeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // [START subscribe_topics]
-                FirebaseMessaging.getInstance().subscribeToTopic("News");
-                // [END subscribe_topics]
 
-                // Log and toast
-                String msg = getString(R.string.msg_subscribed);
-                Log.d(TAG, msg);
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        /* token output */
         Button logTokenButton = findViewById(R.id.logTokenButton);
         logTokenButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /* DB output */
+    /* db output */
     private void displayChatMessage() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
         FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child("messages")) {
@@ -185,13 +202,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         listOfMessage.setAdapter(adapter);
+        onCreateDrawer();
+
     }
 
     private void requestSignIn() {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setIsSmartLockEnabled(false, true)
                         .setAvailableProviders(Arrays.asList(
                                 new AuthUI.IdpConfig.EmailBuilder().build(),
                                 new AuthUI.IdpConfig.PhoneBuilder().build(),
@@ -199,5 +217,46 @@ public class MainActivity extends AppCompatActivity {
                         .build(),
                 SIGN_IN_REQUEST_CODE);
     }
+
+    private void onCreateDrawer() {
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.side_nav_bar)
+                .addProfiles(
+                        new ProfileDrawerItem().withName("Rn").withEmail("denisrondalev@gmail.com").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
+
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
+        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_settings);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .addDrawerItems(
+                        item1,
+                        new DividerDrawerItem(),
+                        item2,
+                        new SecondaryDrawerItem().withName(R.string.drawer_item_settings)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        // TODO on tap.
+                        return false;
+                    }
+                })
+                .withAccountHeader(headerResult)
+                .build();
+
+    }
+
 
 }

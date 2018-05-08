@@ -20,9 +20,9 @@ import com.google.firebase.messaging.RemoteMessage;
 import firebase.balancechat.MainActivity;
 import firebase.balancechat.R;
 
-public class MyFirebaseMessagingService extends FirebaseMessagingService {
+public class FirebaseMessaging extends FirebaseMessagingService {
 
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final String TAG = "FirebaseMessaging";
 
     /**
      * Called when message is received.
@@ -44,6 +44,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         sendNotification(remoteMessage.getNotification().getBody());
         // TODO(developer): Handle FCM messages here.
+
+
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
@@ -78,7 +80,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // [START dispatch_job]
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
         Job myJob = dispatcher.newJobBuilder()
-                .setService(MyJobService.class)
+                .setService(FirebaseJob.class)
                 .setTag("my-job-tag")
                 .build();
         dispatcher.schedule(myJob);
@@ -107,7 +109,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_send)
+                        .setSmallIcon(R.drawable.ic_menu_send)
                         .setContentTitle("FCM Message")
                         .setContentText(messageBody)
                         .setAutoCancel(true)

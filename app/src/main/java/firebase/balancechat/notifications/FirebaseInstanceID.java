@@ -5,9 +5,9 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
+public class FirebaseInstanceID extends FirebaseInstanceIdService {
 
-    private static final String TAG = "MyFirebaseIIDService";
+    private static final String TAG = "FirebaseInstanceID";
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of
