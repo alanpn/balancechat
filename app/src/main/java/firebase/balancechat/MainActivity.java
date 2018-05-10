@@ -1,42 +1,29 @@
 package firebase.balancechat;
 
-import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
-
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -49,7 +36,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private RelativeLayout activity_main;
     private FloatingActionButton fab;
-//    public Toolbar toolbar = findViewById(R.id.toolbar);
+    private AccountHeader drawerHeader = null;
+    private Drawer drawer = null;
 
 
     /* menu items select */
@@ -78,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     Snackbar.make(activity_main, "You signed out of the account.", Snackbar.LENGTH_SHORT).show();
+//                    finish();
                     requestSignIn();
                     displayChatMessage();
                 }
@@ -124,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         activity_main = findViewById(R.id.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
         fab = findViewById(R.id.fab1);
         fab.setOnClickListener(new View.OnClickListener() {
 
@@ -146,7 +136,11 @@ public class MainActivity extends AppCompatActivity {
             displayChatMessage();
         }
 
-        /* create channel to show notifications. */
+        onCreateDrawer();
+    }
+
+   /*
+        *//* create channel to show notifications. *//*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelId = getString(R.string.default_notification_channel_id);
             String channelName = getString(R.string.default_notification_channel_name);
@@ -164,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        /* token output */
+        *//* token output *//*
         Button logTokenButton = findViewById(R.id.logTokenButton);
         logTokenButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,8 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
-
-    }
+     */
 
 
     /* db output */
@@ -202,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         listOfMessage.setAdapter(adapter);
-        onCreateDrawer();
 
     }
 
@@ -219,12 +211,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onCreateDrawer() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
+        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_settings);
+        SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_share);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
-        AccountHeader headerResult = new AccountHeaderBuilder()
+        drawerHeader = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.side_nav_bar)
                 .addProfiles(
-                        new ProfileDrawerItem().withName("Rn").withEmail("denisrondalev@gmail.com").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
+                        new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(user.getPhotoUrl())
+//                        new ProfileDrawerItem().withName("dd").withEmail("dd").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
                 )
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
@@ -234,17 +232,14 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .build();
 
-        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
-        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_settings);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        Drawer result = new DrawerBuilder()
+        drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         item1,
                         new DividerDrawerItem(),
                         item2,
-                        new SecondaryDrawerItem().withName(R.string.drawer_item_settings)
+                        item3
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -253,9 +248,18 @@ public class MainActivity extends AppCompatActivity {
                         return false;
                     }
                 })
-                .withAccountHeader(headerResult)
+                .withAccountHeader(drawerHeader)
                 .build();
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer != null && drawer.isDrawerOpen()) {
+            drawer.closeDrawer();
+        } else {
+            super.onBackPressed();
+        }
     }
 
 

@@ -1,6 +1,6 @@
 <resources>
 
-    <!-- main-->
+    <!-- main -->
     <string name="app_name">Balance</string>
     <string name="your_message">Your message</string>
     <string name="sign_out">Sign out</string>
@@ -9,7 +9,7 @@
     <string name="title_activity_login">Sign in</string>
 
 
-    <!-- notifications-->
+    <!-- notifications -->
     <string name="default_notification_channel_name" translatable="false">News</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="msg_subscribed">Subscribed to news topic</string>
@@ -21,7 +21,7 @@
         InstanceID token to logcat.</string>
 
 
-    <!-- drawer-->
+    <!-- drawer -->
     <string name="title_activity_drawer">DrawerActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -41,5 +41,6 @@
     <string name="communicate">Communicate</string>
     <string name="share">Share</string>
     <string name="send">Send</string>
+    <string name="drawer_item_share">Share</string>
 
 </resources>
