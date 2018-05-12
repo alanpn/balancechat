@@ -31,7 +31,9 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
@@ -40,9 +42,13 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 123;
-    private static final String TAG = "MainActivity";
+//    private static final String TAG = "MainActivity";
+
     private RelativeLayout activity_main;
     private FloatingActionButton fab;
+
+    private FirebaseUser user = null;
+
     private AccountHeader drawerHeader = null;
     private Drawer drawer = null;
 
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     Snackbar.make(activity_main, "You signed out of the account.", Snackbar.LENGTH_SHORT).show();
 //                    finish();
                     requestSignIn();
-                    displayChatMessage();
+                    displayChat();
                 }
             });
         }
@@ -76,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
@@ -87,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if (requestCode == SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
-                displayChatMessage();
+                displayChat();
             } else {
                 Snackbar.make(activity_main, "Login Failed. Please Try Again.", Snackbar.LENGTH_SHORT).show();
                 finish();
@@ -105,13 +110,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
+        user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        authTest();
 
 
         fab = findViewById(R.id.fab1);
@@ -127,20 +132,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /* auth test */
-        if (user != null) {
-            Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
-            displayChatMessage();
-        } else {
-            requestSignIn();
-            displayChatMessage();
-        }
-
-        onCreateDrawer();
     }
 
-   /*
-        *//* create channel to show notifications. *//*
+    @Override
+    protected void onResume() {
+        super.onResume();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            onCreateDrawer(user);
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    /*
+
+     *//* create channel to show notifications (API 27+) *//*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelId = getString(R.string.default_notification_channel_id);
             String channelName = getString(R.string.default_notification_channel_name);
@@ -172,11 +202,21 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
+
      */
 
+    private void authTest() {
+        if (user != null) {
+            Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+            displayChat();
+        } else {
+            requestSignIn();
+            displayChat();
+        }
+    }
 
     /* db output */
-    private void displayChatMessage() {
+    private void displayChat() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
         FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child("messages")) {
 
@@ -210,19 +250,22 @@ public class MainActivity extends AppCompatActivity {
                 SIGN_IN_REQUEST_CODE);
     }
 
-    private void onCreateDrawer() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
-        SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_settings);
-        SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_share);
+    private void onCreateDrawer(FirebaseUser user) {
+        final ProfileDrawerItem profile = new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(user.getPhotoUrl());
+//        final ProfileDrawerItem profileStatic = new ProfileDrawerItem().withName("name").withEmail("email").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
+        final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_home).withName(R.string.drawer_item_home).withSelectable(false);
+        final SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withIcon(R.drawable.ic_action_settings).withDescription(R.string.settings_description).withName(R.string.drawer_item_settings).withSelectable(false);
+        final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_share).withSelectable(false);
+        final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         drawerHeader = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.side_nav_bar)
                 .addProfiles(
-                        new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(user.getPhotoUrl())
-//                        new ProfileDrawerItem().withName("dd").withEmail("dd").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
+                        profile,
+                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(R.drawable.ic_action_account_circle).withIdentifier(100001)
                 )
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
@@ -235,16 +278,32 @@ public class MainActivity extends AppCompatActivity {
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
+                .withSelectedItem(-1)
                 .addDrawerItems(
                         item1,
                         new DividerDrawerItem(),
                         item2,
-                        item3
+                        item3,
+                        item4
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        // TODO on tap.
+                        // TODO: on tap
+                        /*if (drawerItem != null) {
+                            Intent intent = null;
+                            if (drawerItem.getIdentifier() == 1) {
+                                intent = new Intent(MainActivity.this, CompactHeaderDrawerActivity.class);
+                            } else if (drawerItem.getIdentifier() == 2) {
+                                intent = new Intent(MainActivity.this, ActionBarActivity.class);
+                            } else if (drawerItem.getIdentifier() == 3) {
+                                intent = new Intent(MainActivity.this, MultiDrawerActivity.class);
+                            }
+
+                            if (intent != null) {
+                                MainActivity.this.startActivity(intent);
+                            }
+                        }*/
                         return false;
                     }
                 })
@@ -252,6 +311,14 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
     }
+
+    /* add the values to the bundle */
+/*    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState = drawer.saveInstanceState(outState);
+        outState = drawerHeader.saveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }*/
 
     @Override
     public void onBackPressed() {

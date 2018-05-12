@@ -42,5 +42,7 @@
     <string name="share">Share</string>
     <string name="send">Send</string>
     <string name="drawer_item_share">Share</string>
+    <string name="settings_description">account, theme, etc</string>
+    <string name="drawer_item_slideshow">Slideshow</string>
 
 </resources>

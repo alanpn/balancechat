@@ -9,27 +9,25 @@
     tools:ignore="ExtraText">
 
 
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab1"
-        android:layout_width="42dp"
-        android:layout_height="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:clickable="true"
-        android:enabled="false"
-        android:focusable="true"
-        android:src="@drawable/ic_menu_send"
+        app:srcCompat="@drawable/ic_menu_send"
         app:backgroundTint="@color/colorPrimary"
-        app:elevation="0dp"
-        app:fabSize="mini" />
-    <!-- android:enabled - запрет на отправку пустого сообщения -->
+        app:elevation="4dp" />
 
     <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
+        android:layout_width="259dp"
         android:layout_height="47dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
+        android:layout_marginEnd="-9dp"
+        android:layout_marginStart="62dp"
         android:layout_toStartOf="@+id/fab1">
 
         <EditText
@@ -44,24 +42,25 @@
     <ListView
         android:id="@+id/list_of_message"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="444dp"
         android:layout_above="@+id/fab1"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="-5dp"
+        android:layout_marginTop="56dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="16dp"
         android:stackFromBottom="true"
         android:transcriptMode="alwaysScroll" />
 
-    <Button
-        android:id="@+id/logTokenButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/toolbar"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/log_token" />
+    <!--    <Button
+            android:id="@+id/logTokenButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/toolbar"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/log_token" />-->
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -71,10 +70,10 @@
         android:background="@color/colorPrimary"
         android:elevation="4dp"/>
 
-    <FrameLayout
-        android:id="@+id/frame_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar" />
+    <!--    <FrameLayout
+            android:id="@+id/frame_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar" />-->
 
 </RelativeLayout>
