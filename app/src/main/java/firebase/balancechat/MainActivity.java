@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.android.gms.appinvite.AppInviteInvitation;
+import com.irozon.sneaker.Sneaker;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -42,10 +44,14 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 123;
+    private static final int MAX_MSG_LENGTH = 150;
+    private static final int REQUEST_INVITE = 1;
+    public static final String MESSAGES_CHILD = "messages";
 //    private static final String TAG = "MainActivity";
 
     private RelativeLayout activity_main;
-    private FloatingActionButton fab;
+    private FloatingActionButton sendMsgButton;
+    private FirebaseListAdapter<ChatMessage> adapter;
 
     private FirebaseUser user = null;
 
@@ -70,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    Snackbar.make(activity_main, "You signed out of the account.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(activity_main, R.string.sign_out_msg, Snackbar.LENGTH_SHORT).show();
 //                    finish();
                     requestSignIn();
                     displayChat();
@@ -95,10 +101,10 @@ public class MainActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (requestCode == SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(activity_main, getString(R.string.greeting) + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
                 displayChat();
             } else {
-                Snackbar.make(activity_main, "Login Failed. Please Try Again.", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(activity_main, R.string.login_fail, Snackbar.LENGTH_SHORT).show();
                 finish();
             }
         }
@@ -108,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         user = FirebaseAuth.getInstance().getCurrentUser();
+
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
@@ -118,25 +124,42 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         authTest();
 
-
-        fab = findViewById(R.id.fab1);
-        fab.setOnClickListener(new View.OnClickListener() {
+        sendMsgButton = findViewById(R.id.sendMsgButton);
+        sendMsgButton.setOnClickListener(new View.OnClickListener() {
 
             /* push/input into DB */
             @Override
             public void onClick(View view) {
                 EditText input = findViewById(R.id.input);
-                FirebaseDatabase.getInstance().getReference().child("messages").push().setValue(new ChatMessage(input.getText().toString(),
-                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()));
+                String msg = input.getText().toString();
+
+                if (msg.equals("")) {
+                    Sneaker.with(MainActivity.this)
+                            .setTitle(getString(R.string.EMPTY_MSG))
+                            .sneakWarning();
+                    return;
+                }
+
+                if (msg.length() > MAX_MSG_LENGTH) {
+                    Sneaker.with(MainActivity.this)
+                            .setTitle(getString(R.string.MSG_IS_TOO_LONG) + MAX_MSG_LENGTH)
+                            .sneakWarning();
+                    return;
+                }
+
+                    FirebaseDatabase.getInstance().getReference().child(MESSAGES_CHILD).push().setValue(new ChatMessage(input.getText().toString(),
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()));
                 input.setText("");
             }
         });
+
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        /*adapter.startListening();*/
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             onCreateDrawer(user);
@@ -155,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+       /* adapter.stopListening();*/
+
         super.onPause();
     }
 
@@ -207,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void authTest() {
         if (user != null) {
-            Snackbar.make(activity_main, "Welcome back, " + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(activity_main, getString(R.string.greeting) + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
             displayChat();
         } else {
             requestSignIn();
@@ -218,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
     /* db output */
     private void displayChat() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
-        FirebaseListAdapter<ChatMessage> adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child("messages")) {
+        adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child((MESSAGES_CHILD))) {
 
             @Override
             protected void populateView(View v, ChatMessage model, int position) {
@@ -255,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
 //        final ProfileDrawerItem profileStatic = new ProfileDrawerItem().withName("name").withEmail("email").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
         final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_home).withName(R.string.drawer_item_home).withSelectable(false);
         final SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withIcon(R.drawable.ic_action_settings).withDescription(R.string.settings_description).withName(R.string.drawer_item_settings).withSelectable(false);
-        final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_share).withSelectable(false);
+        final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_invitation).withSelectable(false);
         final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -290,20 +315,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         // TODO: on tap
-                        /*if (drawerItem != null) {
+                        if (drawerItem != null) {
                             Intent intent = null;
                             if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(MainActivity.this, CompactHeaderDrawerActivity.class);
+//                                intent = new Intent(MainActivity.this, CompactHeaderDrawerActivity.class);
                             } else if (drawerItem.getIdentifier() == 2) {
-                                intent = new Intent(MainActivity.this, ActionBarActivity.class);
+
                             } else if (drawerItem.getIdentifier() == 3) {
-                                intent = new Intent(MainActivity.this, MultiDrawerActivity.class);
+                                sendInvitation();
                             }
 
                             if (intent != null) {
                                 MainActivity.this.startActivity(intent);
                             }
-                        }*/
+                        }
                         return false;
                     }
                 })
@@ -329,5 +354,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void sendInvitation() {
+        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
+                .setMessage(getString(R.string.invitation_message))
+                .setCallToActionText(getString(R.string.invitation_cta))
+                .build();
+        startActivityForResult(intent, REQUEST_INVITE);
+    }
 
 }

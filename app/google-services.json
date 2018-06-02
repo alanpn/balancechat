@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "3874182818-8m65ear910umfme194s99ugds9mb8vbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "firebase.balancechat",
+            "certificate_hash": "36495ab1ecea2497f001438d535f955a95b035b4"
+          }
+        },
+        {
           "client_id": "3874182818-pgtvp1ifar6t848ntucivb951lbp0fmh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

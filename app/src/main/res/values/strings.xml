@@ -41,8 +41,16 @@
     <string name="communicate">Communicate</string>
     <string name="share">Share</string>
     <string name="send">Send</string>
-    <string name="drawer_item_share">Share</string>
+    <string name="drawer_item_invitation">Send Invitation</string>
     <string name="settings_description">account, theme, etc</string>
     <string name="drawer_item_slideshow">Slideshow</string>
+    <string name="EMPTY_MSG">Enter your message</string>
+    <string name="MSG_IS_TOO_LONG">Maximum message length: </string>
+    <string name="greeting">Welcome back,</string>
+    <string name="login_fail">Login Failed. Please Try Again.</string>
+    <string name="sign_out_msg">You signed out of the account.</string>
+    <string name="invitation_message">Please join me for a balancechat</string>
+    <string name="invitation_cta">Call to action</string>
+    <string name="invitation_title">Balance Invite</string>
 
 </resources>

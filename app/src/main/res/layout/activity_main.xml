@@ -10,7 +10,7 @@
 
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab1"
+        android:id="@+id/sendMsgButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -28,7 +28,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginEnd="-9dp"
         android:layout_marginStart="62dp"
-        android:layout_toStartOf="@+id/fab1">
+        android:layout_toStartOf="@+id/sendMsgButton">
 
         <EditText
             android:id="@+id/input"
@@ -43,7 +43,7 @@
         android:id="@+id/list_of_message"
         android:layout_width="match_parent"
         android:layout_height="444dp"
-        android:layout_above="@+id/fab1"
+        android:layout_above="@+id/sendMsgButton"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="-5dp"
