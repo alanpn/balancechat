@@ -24,6 +24,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".UserPictureActivity"
+            android:label="User Profile"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
         <!-- notifications -->
         <service android:name=".notifications.FirebaseMessaging">
             <intent-filter>

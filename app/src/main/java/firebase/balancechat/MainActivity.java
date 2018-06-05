@@ -33,7 +33,6 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
@@ -42,19 +41,16 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
-    private static final int SIGN_IN_REQUEST_CODE = 123;
-    private static final int MAX_MSG_LENGTH = 150;
-    private static final int REQUEST_INVITE = 1;
-    public static final String MESSAGES_CHILD = "messages";
-//    private static final String TAG = "MainActivity";
+import firebase.balancechat.util.Constants;
 
+@SuppressWarnings("FieldCanBeLocal")
+public class MainActivity extends AppCompatActivity {
+
+//    private static final String TAG = "MainActivity";
     private RelativeLayout activity_main;
     private FloatingActionButton sendMsgButton;
     private FirebaseListAdapter<ChatMessage> adapter;
-
     private FirebaseUser user = null;
-
     private AccountHeader drawerHeader = null;
     private Drawer drawer = null;
 
@@ -99,12 +95,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         user = FirebaseAuth.getInstance().getCurrentUser();
-        if (requestCode == SIGN_IN_REQUEST_CODE) {
+        if (requestCode == Constants.SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Snackbar.make(activity_main, getString(R.string.greeting) + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+                Sneaker.with(MainActivity.this)
+                        .setTitle(getString(R.string.greeting) + user.getDisplayName())
+                        .sneakSuccess();
                 displayChat();
             } else {
-                Snackbar.make(activity_main, R.string.login_fail, Snackbar.LENGTH_SHORT).show();
+                Sneaker.with(MainActivity.this)
+                        .setTitle(getString(R.string.login_fail))
+                        .sneakError();
                 finish();
             }
         }
@@ -140,14 +140,14 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (msg.length() > MAX_MSG_LENGTH) {
+                if (msg.length() > Constants.MAX_MSG_LENGTH) {
                     Sneaker.with(MainActivity.this)
-                            .setTitle(getString(R.string.MSG_IS_TOO_LONG) + MAX_MSG_LENGTH)
+                            .setTitle(getString(R.string.MSG_IS_TOO_LONG) + Constants.MAX_MSG_LENGTH)
                             .sneakWarning();
                     return;
                 }
 
-                    FirebaseDatabase.getInstance().getReference().child(MESSAGES_CHILD).push().setValue(new ChatMessage(input.getText().toString(),
+                    FirebaseDatabase.getInstance().getReference().child(Constants.MESSAGE_CHILD).push().setValue(new ChatMessage(input.getText().toString(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()));
                 input.setText("");
             }
@@ -232,7 +232,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void authTest() {
         if (user != null) {
-            Snackbar.make(activity_main, getString(R.string.greeting) + user.getDisplayName(), Snackbar.LENGTH_SHORT).show();
+            Sneaker.with(MainActivity.this)
+                    .setTitle(getString(R.string.greeting) + user.getDisplayName())
+                    .sneakSuccess();
             displayChat();
         } else {
             requestSignIn();
@@ -243,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
     /* db output */
     private void displayChat() {
         ListView listOfMessage = findViewById(R.id.list_of_message);
-        adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child((MESSAGES_CHILD))) {
+        adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class, R.layout.list_item, FirebaseDatabase.getInstance().getReference().child((Constants.MESSAGE_CHILD))) {
 
             @Override
             protected void populateView(View v, ChatMessage model, int position) {
@@ -256,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
                 messageText.setText(model.getMessageText());
                 messageUser.setText(model.getMessageUser());
-                messageTime.setText(DateFormat.format("h:mm a", model.getMessageTime()));
+                messageTime.setText(DateFormat.format(Constants.MESSAGE_TIME_FORMAT, model.getMessageTime()));
             }
         };
         listOfMessage.setAdapter(adapter);
@@ -272,13 +274,13 @@ public class MainActivity extends AppCompatActivity {
                                 new AuthUI.IdpConfig.PhoneBuilder().build(),
                                 new AuthUI.IdpConfig.GoogleBuilder().build()))
                         .build(),
-                SIGN_IN_REQUEST_CODE);
+                Constants.SIGN_IN_REQUEST_CODE);
     }
 
     private void onCreateDrawer(FirebaseUser user) {
         final ProfileDrawerItem profile = new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(user.getPhotoUrl());
 //        final ProfileDrawerItem profileStatic = new ProfileDrawerItem().withName("name").withEmail("email").withIcon(getResources().getDrawable(R.drawable.ic_action_account_circle))
-        final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_home).withName(R.string.drawer_item_home).withSelectable(false);
+        final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_account_circle).withName(R.string.drawer_item_home).withSelectable(false);
         final SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withIcon(R.drawable.ic_action_settings).withDescription(R.string.settings_description).withName(R.string.drawer_item_settings).withSelectable(false);
         final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_invitation).withSelectable(false);
         final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true);
@@ -289,14 +291,15 @@ public class MainActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.side_nav_bar)
                 .addProfiles(
-                        profile,
-                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(R.drawable.ic_action_account_circle).withIdentifier(100001)
+                        profile
+//                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(R.drawable.ic_action_account_circle).withIdentifier(100001)
                 )
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
                         return false;
                     }
+
                 })
                 .build();
 
@@ -318,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
                         if (drawerItem != null) {
                             Intent intent = null;
                             if (drawerItem.getIdentifier() == 1) {
-//                                intent = new Intent(MainActivity.this, CompactHeaderDrawerActivity.class);
+//                                intent = new Intent(MainActivity.this, UserPictureActivity.class);
                             } else if (drawerItem.getIdentifier() == 2) {
 
                             } else if (drawerItem.getIdentifier() == 3) {
@@ -359,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getString(R.string.invitation_message))
                 .setCallToActionText(getString(R.string.invitation_cta))
                 .build();
-        startActivityForResult(intent, REQUEST_INVITE);
+        startActivityForResult(intent, Constants.REQUEST_INVITE);
     }
 
 }

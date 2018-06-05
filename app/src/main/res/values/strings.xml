@@ -46,11 +46,15 @@
     <string name="drawer_item_slideshow">Slideshow</string>
     <string name="EMPTY_MSG">Enter your message</string>
     <string name="MSG_IS_TOO_LONG">Maximum message length: </string>
-    <string name="greeting">Welcome back,</string>
+    <string name="greeting">Welcome back, </string>
     <string name="login_fail">Login Failed. Please Try Again.</string>
     <string name="sign_out_msg">You signed out of the account.</string>
     <string name="invitation_message">Please join me for a balancechat</string>
     <string name="invitation_cta">Call to action</string>
     <string name="invitation_title">Balance Invite</string>
+    <string name="profile_picture_path">Photos/profile_picture/</string>
+    <string name="waiting_for_loading">Load in progress…</string>
+    <string name="profile_picture_path_child">/profile_pic</string>
+    <string name="user_picture">User Picture</string>
 
 </resources>

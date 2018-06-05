@@ -1,0 +1,170 @@
+package firebase.balancechat;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.util.UUID;
+
+import firebase.balancechat.model.User;
+import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.EmailEncoding;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+@SuppressWarnings("FieldCanBeLocal")
+public class UserPictureActivity extends AppCompatActivity {
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseDatabase firebaseDatabase;
+
+    private Toolbar toolbar;
+    private ImageButton photoPickerButton;
+    private ProgressDialog progressDialog;
+    private StorageReference storageReference;
+    private ImageView profileImage;
+    private DatabaseReference databaseReference;
+    private Context mView;
+
+    private String currentUserEmail;
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_picture);
+        mView = UserPictureActivity.this;
+        initializeScreen();
+        openImageSelector();
+        initializeUserInfo();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        storageReference = FirebaseStorage.getInstance().getReference(); //make global
+        super.onActivityResult(requestCode, requestCode, data);
+
+        if (requestCode == Constants.GALLERY_INTENT && resultCode == RESULT_OK) {
+
+            progressDialog.setMessage(getString(R.string.waiting_for_loading));
+            progressDialog.show();
+
+            Uri uri = data.getData();
+            final String imageLocation = getString(R.string.profile_picture_path) + currentUserEmail;
+            final String imageLocationId = imageLocation + "/" + uri.getLastPathSegment();
+            final String uniqueId = UUID.randomUUID().toString();
+            final StorageReference filepath = storageReference.child(imageLocation).child(uniqueId + Constants.PROFILE_PICTURE_PATH);
+            final String downloadURl = filepath.getPath();
+            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    addImageToProfile(downloadURl);
+                    progressDialog.dismiss();
+                }
+            });
+        }
+
+    }
+
+    public void addImageToProfile(final String imageLocation) {
+        final ImageView imageView = (ImageView) findViewById(R.id.profilePicture);
+        databaseReference
+                .child(Constants.PROFILE_PICTURE_LOCATION_CHILD).setValue(imageLocation).addOnCompleteListener(
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        StorageReference storageRef = FirebaseStorage.getInstance()
+                                .getReference().child(imageLocation);
+                        Glide.with(mView)
+                                .using(new FirebaseImageLoader())
+                                .load(storageRef)
+                                .bitmapTransform(new CropCircleTransformation(mView))
+                                .into(imageView);
+                    }
+                }
+        );
+
+    }
+
+    public void openImageSelector() {
+        photoPickerButton = (ImageButton) findViewById(R.id.imageButton);
+        progressDialog = new ProgressDialog(this);
+        photoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, Constants.GALLERY_INTENT);
+            }
+        });
+    }
+
+    private void initializeUserInfo() {
+        final ImageView imageView = (ImageView) findViewById(R.id.profilePicture);
+        databaseReference
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = dataSnapshot.getValue(User.class);
+                        if (user != null && user.getProfilePicLocation() != null) {
+                            StorageReference storageRef = FirebaseStorage.getInstance()
+                                    .getReference().child(user.getProfilePicLocation());
+
+                            Glide.with(mView)
+                                    .using(new FirebaseImageLoader())
+                                    .load(storageRef)
+                                    .bitmapTransform(new CropCircleTransformation(mView))
+                                    .into(imageView);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void initializeScreen() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        currentUserEmail = EmailEncoding.commaEncodePeriod(firebaseAuth.getCurrentUser().getEmail());
+        databaseReference = firebaseDatabase
+                .getReference().child(Constants.USER_CHILD
+                        + "/" + currentUserEmail);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.settings);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+    }
+
+}
