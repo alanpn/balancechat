@@ -28,6 +28,7 @@ dependencies {
     implementation 'com.irozon.sneaker:sneaker:1.0.3'
     //noinspection GradleDependency
     implementation 'jp.wasabeef:glide-transformations:2.0.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.2'
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.1'

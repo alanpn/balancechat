@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/messageLine"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/leftMessagePic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:src="@mipmap/ic_launcher" />
+
+    <LinearLayout
+        android:id="@+id/individMessageLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/roundedmessages"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp">
+
+        <ImageView
+            android:id="@+id/imageMessage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/facebook_button_like_background" />
+
+        <ImageButton
+            android:id="@+id/voiceMessageButton"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginTop="0dp"
+            android:background="@mipmap/ic_launcher"
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="200dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textSize="18sp"
+            android:textStyle="normal|bold"
+            tools:text="Message" />
+
+        <TextView
+            android:id="@+id/senderTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:textSize="12sp"
+            tools:text="Sender" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/rightMessagePic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:src="@mipmap/ic_launcher"
+        android:visibility="gone" />
+</LinearLayout>

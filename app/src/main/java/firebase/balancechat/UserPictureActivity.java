@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,7 +31,7 @@ import java.util.UUID;
 
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
-import firebase.balancechat.util.EmailEncoding;
+import firebase.balancechat.util.StringEncoding;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
@@ -150,7 +149,7 @@ public class UserPictureActivity extends AppCompatActivity {
     private void initializeScreen() {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        currentUserEmail = EmailEncoding.commaEncodePeriod(firebaseAuth.getCurrentUser().getEmail());
+        currentUserEmail = StringEncoding.encodeString(firebaseAuth.getCurrentUser().getEmail());
         databaseReference = firebaseDatabase
                 .getReference().child(Constants.USER_CHILD
                         + "/" + currentUserEmail);
