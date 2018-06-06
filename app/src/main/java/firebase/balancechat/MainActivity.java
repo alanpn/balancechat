@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,8 +19,6 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -63,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton sendMsgButton;
     private String mUsername;
 
-    private FirebaseListAdapter<ChatMessage> adapter;
-    //    private FirebaseUser user = null;
     private FirebaseAuth mFirebaseAuth;
     private ListView mChatListView;
     private FirebaseListAdapter mChatAdapter;
@@ -84,14 +79,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        user = FirebaseAuth.getInstance().getCurrentUser();
 
         FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         setContentView(R.layout.activity_main);
         activity_main = findViewById(R.id.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        authTest();
 
         database = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -153,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_settings) {
+            Sneaker.with(MainActivity.this)
+                    .setTitle("test")
+                    .sneakWarning();
         }
 
         if (item.getItemId() == R.id.message_delete) {
@@ -161,24 +157,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.menu_sign_out) {
-            /*AuthUI.getInstance().signOut(this).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Snackbar.make(activity_main, R.string.sign_out_msg, Snackbar.LENGTH_SHORT).show();
-//                    finish();
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setAvailableProviders(Arrays.asList(
-                                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
-                                            new AuthUI.IdpConfig.GoogleBuilder().build()))
-                                    .build(),
-                            Constants.SIGN_IN_REQUEST_CODE);
-//                    displayChat();
-                }
-            });*/
+            Sneaker.with(MainActivity.this)
+                    .setTitle("test")
+                    .sneakWarning();
         }
         return true;
     }
@@ -200,13 +181,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//        user = FirebaseAuth.getInstance().getCurrentUser();
         if (requestCode == Constants.SIGN_IN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Sneaker.with(this)
                         .setTitle(getString(R.string.greeting) + user.getDisplayName())
                         .sneakSuccess();
-//                displayChat();
             } else {
                 Sneaker.with(this)
                         .setTitle(getString(R.string.login_fail))
@@ -222,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//        user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             onCreateDrawer(user);
         }
@@ -293,19 +271,6 @@ public class MainActivity extends AppCompatActivity {
 
      */
 
-    /*private void authTest() {
-        if (user != null) {
-            Sneaker.with(MainActivity.this)
-                    .setTitle(getString(R.string.greeting) + user.getDisplayName())
-                    .sneakSuccess();
-            createUser(user);
-            onSignedInInitialize(user);
-//            displayChat();
-        } else {
-            requestSignIn();
-//            displayChat();
-        }
-    }*/
 
     private void createUser(FirebaseUser user) {
         final DatabaseReference usersRef = database.getReference(Constants.USER_CHILD);
@@ -343,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
         //Initialize screen variables
         mChatListView = (ListView) findViewById(R.id.chatListView);
 
-        mChatAdapter = new FirebaseListAdapter<Chat>(this, Chat.class, R.layout.item_chat, mChatDatabaseReference) {
+        mChatAdapter = new FirebaseListAdapter<Chat>(this, Chat.class, R.layout.item_chats, mChatDatabaseReference) {
             @Override
             protected void populateView(final View view, Chat chat, final int position) {
                 //final Friend addFriend = new Friend(chat);
@@ -492,25 +457,12 @@ public class MainActivity extends AppCompatActivity {
 
     }*/
 
-    /*private void requestSignIn() {
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setIsSmartLockEnabled(false)
-                        .setAvailableProviders(Arrays.asList(
-                                new AuthUI.IdpConfig.EmailBuilder().build(),
-                                new AuthUI.IdpConfig.PhoneBuilder().build(),
-                                new AuthUI.IdpConfig.GoogleBuilder().build()))
-                        .build(),
-                Constants.SIGN_IN_REQUEST_CODE);
-    }*/
-
     private void onCreateDrawer(FirebaseUser user) {
         final ProfileDrawerItem profile = new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(user.getPhotoUrl());
         final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_account).withName(R.string.drawer_item_contact).withSelectable(false);
         final SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withIcon(R.drawable.ic_action_settings).withDescription(R.string.settings_description).withName(R.string.drawer_item_settings).withSelectable(false);
         final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_invitation).withSelectable(false);
-        final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true);
+        final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true).withSelectable(false);
         final SecondaryDrawerItem item5 = new SecondaryDrawerItem().withIdentifier(5).withIcon(R.drawable.ic_action_signout).withName(R.string.drawer_item_signout).withSelectable(false);
 
 

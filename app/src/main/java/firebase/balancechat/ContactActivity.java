@@ -59,7 +59,7 @@ public class ContactActivity extends AppCompatActivity {
     }
 
     private void showUserList() {
-        mFriendListAdapter = new FirebaseListAdapter<User>(this, User.class, R.layout.item_contact, mUserDatabaseReference) {
+        mFriendListAdapter = new FirebaseListAdapter<User>(this, User.class, R.layout.item_contacts, mUserDatabaseReference) {
             @Override
             protected void populateView(final View view, User user, final int position) {
 

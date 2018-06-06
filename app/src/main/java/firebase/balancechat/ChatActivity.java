@@ -68,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_chat);
+        setContentView(R.layout.activity_new_chat);
         initializeScreen();
         showFriendsList();
         addListeners();
@@ -97,7 +97,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void showFriendsList() {
         //TODO: This list should not show your own userid..
-        mFriendListAdapter = new FirebaseListAdapter<String>(this, String.class, R.layout.item_contact, mFriendsLocationDatabaseReference) {
+        mFriendListAdapter = new FirebaseListAdapter<String>(this, String.class, R.layout.item_contacts, mFriendsLocationDatabaseReference) {
             @Override
             protected void populateView(final View view, final String friend, final int position) {
                 final Friend addFriend = new Friend(friend);

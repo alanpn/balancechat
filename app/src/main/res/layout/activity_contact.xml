@@ -42,7 +42,7 @@
             android:layout_height="match_parent"
             android:stackFromBottom="false"
             android:transcriptMode="alwaysScroll"
-            tools:listitem="@layout/item_contact"/>
+            tools:listitem="@layout/item_contacts"/>
 
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

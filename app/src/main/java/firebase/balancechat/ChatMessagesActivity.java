@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -110,7 +111,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.messages_activity);
+        setContentView(R.layout.activity_messages);
 
 
         Intent intent = this.getIntent();
@@ -345,7 +346,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
 
         String messageString = mMessageField.getText().toString();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MESSAGE_TIME_FORMAT);
         Date date = new Date();
         String timestamp = dateFormat.format(date);
         //Create message object with text/voice etc
@@ -365,38 +366,38 @@ public class ChatMessagesActivity extends AppCompatActivity {
     }
 
     private void showMessages() {
-        mMessageListAdapter = new FirebaseListAdapter<Message>(this, Message.class, R.layout.message_item, mMessageDatabaseReference) {
+        mMessageListAdapter = new FirebaseListAdapter<Message>(this, Message.class, R.layout.item_messages, mMessageDatabaseReference) {
             @Override
             protected void populateView(final View view, final Message message, final int position) {
                 LinearLayout messageLine = (LinearLayout) view.findViewById(R.id.messageLine);
                 TextView messgaeText = (TextView) view.findViewById(R.id.messageTextView);
                 TextView senderText = (TextView) view.findViewById(R.id.senderTextView);
-                //TextView timeTextView = (TextView) view.findViewById(R.id.timeTextView);
+                TextView timeTextView = (TextView) view.findViewById(R.id.timeTextView);
                 final ImageView leftImage = (ImageView) view.findViewById(R.id.leftMessagePic);
                 final ImageView rightImage = (ImageView) view.findViewById(R.id.rightMessagePic);
                 LinearLayout individMessageLayout = (LinearLayout) view.findViewById(R.id.individMessageLayout);
 
-                //display timestamp correclty
-//                String time = message.getTimestamp();
-//                if(time != null && time != "" ) {
-//                    String ampm = "A.M.";
-//                    String hours = time.substring(0, 2);
-//                    String minutes = time.substring(3, 5);
-//                    int numHours = Integer.parseInt(hours);
-//                    if(numHours == 12){ //if numhours is 12 then its pm
-//                        ampm = "P.M.";
-//                    }
-//                    if (numHours > 12) {
-//                        numHours -= 12;
-//                        ampm = "P.M.";
-//                    }
-//                    if(numHours == 0){
-//                        numHours = 12;
-//                    }
-//                    hours = Integer.toString(numHours);
-//                    time = hours + ":" + minutes + " " + ampm;
-//                }
-//                timeTextView.setText(time);
+//                display timestamp correclty
+                /*String time = message.getTimestamp();
+                if(time != null && time != "" ) {
+                    String ampm = "A.M.";
+                    String hours = time.substring(0, 2);
+                    String minutes = time.substring(3, 5);
+                    int numHours = Integer.parseInt(hours);
+                    if(numHours == 12){ //if numhours is 12 then its pm
+                        ampm = "P.M.";
+                    }
+                    if (numHours > 12) {
+                        numHours -= 12;
+                        ampm = "P.M.";
+                    }
+                    if(numHours == 0){
+                        numHours = 12;
+                    }
+                    hours = Integer.toString(numHours);
+                    time = hours + ":" + minutes + " " + ampm;
+                }*/
+                timeTextView.setText(DateFormat.format(Constants.MESSAGE_TIME_FORMAT, message.getTimestamp()));
 
                 //set message and sender text
                 messgaeText.setText(message.getMessage());

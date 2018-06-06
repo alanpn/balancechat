@@ -96,7 +96,7 @@
                 android:layout_marginTop="5dp"
                 android:stackFromBottom="false"
                 android:transcriptMode="alwaysScroll"
-                tools:listitem="@layout/item_contact" />
+                tools:listitem="@layout/item_contacts" />
 
         </RelativeLayout>
     </LinearLayout>

@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="firebase.balancechat.MainActivity"
-    tools:showIn="@layout/activity_main2">
+    tools:showIn="@layout/activity_main">
 
     <ListView
         android:id="@+id/chatListView"
@@ -19,6 +19,6 @@
         android:layout_height="match_parent"
         android:stackFromBottom="false"
         android:transcriptMode="alwaysScroll"
-        tools:listitem="@layout/item_chat"/>
+        tools:listitem="@layout/item_chats"/>
 
 </RelativeLayout>

@@ -39,28 +39,28 @@
         <activity
             android:name=".UserPictureActivity"
             android:label="User Profile"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
 
         </activity>
 
         <activity
             android:name=".ContactActivity"
             android:label="Contact Activity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
 
         </activity>
 
         <activity
             android:name=".ChatMessagesActivity"
             android:label="(Name of Chat)"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
 
         </activity>
 
         <activity
             android:name=".ChatActivity"
             android:label="Start Conversation"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
 
         </activity>
 
