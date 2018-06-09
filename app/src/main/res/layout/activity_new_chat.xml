@@ -9,15 +9,12 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            android:layout_height="wrap_content">
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
@@ -38,32 +35,33 @@
 
             <EditText
                 android:id="@+id/chat_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-
                 android:hint="Chat Name"
                 android:inputType="textPersonName"
-                android:paddingLeft="15dp"
+                android:paddingStart="15dp"
                 android:paddingTop="9dp" />
 
             <ImageButton
                 android:id="@+id/createButton"
+                style="@android:style/Widget.Holo.Light.ImageButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginRight="15dp"
-                android:background="@android:drawable/ic_menu_send"
-                android:onClick="createChat" />
-        </LinearLayout>
+                android:layout_marginEnd="15dp"
 
+                android:backgroundTint="@color/colorPrimaryLight"
+                android:onClick="createChat"
+                app:srcCompat="@drawable/ic_action_add" />
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/content_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:context="cs656.com.firebasemessengerapp.MainActivity"
+            tools:context="firebase.balancechat.MainActivity"
             tools:showIn="@layout/activity_main">
 
             <TextView
@@ -72,9 +70,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentStart="true"
-                android:paddingLeft="15dp"
+                android:paddingStart="15dp"
                 android:paddingTop="10dp"
-                android:text="User added to chat: " />
+                android:text="Members: " />
 
             <TextView
                 android:id="@+id/FriendsView"
@@ -85,13 +83,14 @@
                 android:gravity="center"
                 android:text="Friends:"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="24dp" />
+                android:textSize="24sp" />
 
             <ListView
                 android:id="@+id/conversationListView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
                 android:layout_below="@+id/FriendsView"
                 android:layout_marginTop="5dp"
                 android:stackFromBottom="false"

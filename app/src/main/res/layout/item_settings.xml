@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/materialize_toolbar"
+    android:paddingBottom="10dp"
+    android:paddingTop="20dp">
+
+    <ImageView
+        android:id="@+id/profilePicture"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:adjustViewBounds="false"
+        android:contentDescription="@string/user_picture"
+        android:cropToPadding="false"
+        app:srcCompat="@drawable/ic_action_account_circle" />
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end|center"
+        android:layout_marginEnd="125dp"
+        android:contentDescription="@string/user_picture"
+        android:src="@drawable/ic_action_edit"
+        app:fab_colorNormal="@color/colorDeepTeal"
+        app:fab_colorPressed="@color/colorPrimaryLight"
+        app:fab_colorRipple="@color/colorRipple"
+        app:fab_size="mini" />
+
+
+</FrameLayout>

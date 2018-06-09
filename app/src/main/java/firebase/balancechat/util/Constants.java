@@ -8,6 +8,7 @@ public final class Constants {
     public static final String CHAT_CHILD = "chats";
     public static final String MESSAGE_CHILD = "messages";
     public static final String PROFILE_PICTURE_LOCATION_CHILD = "profilePicLocation";
+//    public static final String PROFILE_PICTURE_LOCATION_CHILD = "photoUrl";
     public static final String PROFILE_PICTURE_PATH = "Photos/profile_picture/";
 
     /*??*/

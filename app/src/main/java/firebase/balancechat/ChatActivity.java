@@ -166,6 +166,7 @@ public class ChatActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         Log.e(TAG, "Clicking row: " + position);
                         Log.e(TAG, "Clicking user: " + friend);
+
                         //TODO: Add remove methods
                         mChat.removeFriend(addFriend); //the name add Friend here is not appropriate
                         String friendsString = "";

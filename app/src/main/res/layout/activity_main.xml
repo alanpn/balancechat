@@ -9,30 +9,55 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="wrap_content" />
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/item_main" />
 
-    <android.support.design.widget.FloatingActionButton xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/add_conversation"
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/action_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:onClick="createNewChat"
-        android:src="@drawable/ic_menu_navigation"
-        app:borderWidth="0dp"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp" />
+        android:layout_marginTop="10dp"
+        app:fab_showShadow="true"
+        app:fab_size="normal"
+        app:menu_colorNormal="@color/colorDeepTeal"
+        app:menu_colorPressed="@color/colorPrimaryLight"
+        app:menu_colorRipple="@color/colorRipple"
+        app:menu_icon="@drawable/ic_action_add"
+        app:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+        app:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+        app:menu_shadowColor="#66000000"
+        app:menu_shadowRadius="4dp"
+        app:menu_shadowXOffset="1dp"
+        app:menu_shadowYOffset="3dp">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab14"
+            style="@style/MenuButtonsSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_home" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/add_conversation"
+            style="@style/MenuButtonsSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="createNewChat"
+            android:src="@drawable/ic_menu_message"
+            app:fab_label="New Chat" />
+
+    </com.github.clans.fab.FloatingActionMenu>
 
 </android.support.design.widget.CoordinatorLayout>

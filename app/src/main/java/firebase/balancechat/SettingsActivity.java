@@ -35,7 +35,7 @@ import firebase.balancechat.util.StringEncoding;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class UserPictureActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseDatabase firebaseDatabase;
@@ -47,14 +47,14 @@ public class UserPictureActivity extends AppCompatActivity {
     private ImageView profileImage;
     private DatabaseReference databaseReference;
     private Context mView;
-
     private String currentUserEmail;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_picture);
-        mView = UserPictureActivity.this;
+        setContentView(R.layout.activity_settings);
+        mView = SettingsActivity.this;
         initializeScreen();
         openImageSelector();
         initializeUserInfo();
@@ -62,7 +62,7 @@ public class UserPictureActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        storageReference = FirebaseStorage.getInstance().getReference(); //make global
+        storageReference = FirebaseStorage.getInstance().getReference();
         super.onActivityResult(requestCode, requestCode, data);
 
         if (requestCode == Constants.GALLERY_INTENT && resultCode == RESULT_OK) {
@@ -96,15 +96,35 @@ public class UserPictureActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         StorageReference storageRef = FirebaseStorage.getInstance()
                                 .getReference().child(imageLocation);
-                        Glide.with(mView)
-                                .using(new FirebaseImageLoader())
-                                .load(storageRef)
-                                .bitmapTransform(new CropCircleTransformation(mView))
-                                .into(imageView);
+                        glideTransform(storageRef, imageView);
+
+
+              /*          DrawerImageLoader.init(new AbstractDrawerImageLoader() {
+                            @Override
+                            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
+                                Picasso.get().load(uri).placeholder(placeholder).into(imageView);
+                            }
+
+                            @Override
+                            public void cancel(ImageView imageView) {
+                                Picasso.get().cancelRequest(imageView);
+                            }
+                        });
+                        new UserProfileChangeRequest.Builder().setPhotoUri(Uri.parse(imageLocation)).build();*/
+
                     }
                 }
         );
 
+
+    }
+
+    private void glideTransform(StorageReference storageRef, ImageView imageView) {
+        Glide.with(mView)
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .bitmapTransform(new CropCircleTransformation(mView))
+                .into(imageView);
     }
 
     public void openImageSelector() {
@@ -120,7 +140,7 @@ public class UserPictureActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeUserInfo() {
+    public void initializeUserInfo() {
         final ImageView imageView = (ImageView) findViewById(R.id.profilePicture);
         databaseReference
                 .addValueEventListener(new ValueEventListener() {
@@ -131,11 +151,8 @@ public class UserPictureActivity extends AppCompatActivity {
                             StorageReference storageRef = FirebaseStorage.getInstance()
                                     .getReference().child(user.getProfilePicLocation());
 
-                            Glide.with(mView)
-                                    .using(new FirebaseImageLoader())
-                                    .load(storageRef)
-                                    .bitmapTransform(new CropCircleTransformation(mView))
-                                    .into(imageView);
+                            glideTransform(storageRef, imageView);
+
                         }
                     }
 

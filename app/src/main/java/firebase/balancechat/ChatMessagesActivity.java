@@ -43,6 +43,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.tapadoo.alerter.Alerter;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +59,7 @@ import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.StringEncoding;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class ChatMessagesActivity extends AppCompatActivity {
 
     private String messageId;
@@ -351,6 +353,25 @@ public class ChatMessagesActivity extends AppCompatActivity {
         String timestamp = dateFormat.format(date);
         //Create message object with text/voice etc
         Message message = new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()), messageString, timestamp);
+
+        if (messageString.equals("")) {
+            Alerter.create(this)
+                    .setTitle(R.string.EMPTY_MSG)
+                    .setBackgroundColorRes(R.color.colorWarning)
+                    .setIcon(R.drawable.ic_action_warning)
+                    .show();
+            return;
+        }
+
+        if (messageString.length() > Constants.MAX_MSG_LENGTH) {
+            Alerter.create(this)
+                    .setTitle(getString(R.string.MSG_IS_TOO_LONG) + " " + Constants.MAX_MSG_LENGTH)
+                    .setBackgroundColorRes(R.color.colorWarning)
+                    .setIcon(R.drawable.ic_action_warning)
+                    .show();
+            return;
+        }
+
         //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
         HashMap<String, Object> messageObj = (HashMap<String, Object>) new ObjectMapper()
@@ -377,26 +398,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
                 final ImageView rightImage = (ImageView) view.findViewById(R.id.rightMessagePic);
                 LinearLayout individMessageLayout = (LinearLayout) view.findViewById(R.id.individMessageLayout);
 
-//                display timestamp correclty
-                /*String time = message.getTimestamp();
-                if(time != null && time != "" ) {
-                    String ampm = "A.M.";
-                    String hours = time.substring(0, 2);
-                    String minutes = time.substring(3, 5);
-                    int numHours = Integer.parseInt(hours);
-                    if(numHours == 12){ //if numhours is 12 then its pm
-                        ampm = "P.M.";
-                    }
-                    if (numHours > 12) {
-                        numHours -= 12;
-                        ampm = "P.M.";
-                    }
-                    if(numHours == 0){
-                        numHours = 12;
-                    }
-                    hours = Integer.toString(numHours);
-                    time = hours + ":" + minutes + " " + ampm;
-                }*/
                 timeTextView.setText(DateFormat.format(Constants.MESSAGE_TIME_FORMAT, message.getTimestamp()));
 
                 //set message and sender text
@@ -421,11 +422,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
                                 if (userInfo != null && userInfo.getProfilePicLocation() != null) {
                                     StorageReference storageRef = FirebaseStorage.getInstance()
                                             .getReference().child(userInfo.getProfilePicLocation());
-                                    Glide.with(view.getContext())
-                                            .using(new FirebaseImageLoader())
-                                            .load(storageRef)
-                                            .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                                            .into(rightImage);
+                                    glideTransform(storageRef, view, rightImage);
                                 }
                             } catch (Exception e) {
                                 Log.e("ERR", e.toString());
@@ -467,11 +464,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
                                 try {
                                     StorageReference storageRef = FirebaseStorage.getInstance()
                                             .getReference().child(userInfo.getProfilePicLocation());
-                                    Glide.with(view.getContext())
-                                            .using(new FirebaseImageLoader())
-                                            .load(storageRef)
-                                            .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                                            .into(leftImage);
+                                    glideTransform(storageRef, view, leftImage);
                                 } catch (Exception e) {
                                     Log.e("Err", e.toString());
                                 }
@@ -538,6 +531,14 @@ public class ChatMessagesActivity extends AppCompatActivity {
             }
         };
         mMessageList.setAdapter(mMessageListAdapter);
+    }
+
+    private void glideTransform(StorageReference storageRef, View view, ImageView leftImage) {
+        Glide.with(view.getContext())
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .bitmapTransform(new CropCircleTransformation(view.getContext()))
+                .into(leftImage);
     }
 
     private void playSound(Uri uri) {

@@ -29,9 +29,8 @@ import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.StringEncoding;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class ContactActivity extends AppCompatActivity {
-
-    private String TAG = "Friends List Activity";
 
     private ListView mListView;
     private Toolbar mToolBar;
@@ -52,9 +51,6 @@ public class ContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
         initializeScreen();
-
-        mToolBar.setTitle("Find new friends");
-
         showUserList();
     }
 
@@ -72,17 +68,16 @@ public class ContactActivity extends AppCompatActivity {
                 friendRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (email.equals(mCurrentUserEmail)) {
-                            view.findViewById(R.id.addFriend).setVisibility(View.GONE);
-                            view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
-                        } else if (dataSnapshot.getValue() != null) {
-                            Log.w(TAG, "User is friend");
+                        if (email.equals(mCurrentUserEmail)) { // choose self
+                            view.findViewById(R.id.friendRow).setVisibility(View.GONE);
+                            view.setMinimumWidth(0);
+                            view.setMinimumHeight(0);
+                        } else if (dataSnapshot.getValue() != null) { // is friend
                             view.findViewById(R.id.addFriend).setVisibility(View.GONE);
                             view.findViewById(R.id.removeFriend).setVisibility(View.VISIBLE);
-                        } else {
-                            Log.w(TAG, "User is not friend");
-                            view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
+                        } else { // isn't
                             view.findViewById(R.id.addFriend).setVisibility(View.VISIBLE);
+                            view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
                         }
                     }
 

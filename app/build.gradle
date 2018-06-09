@@ -29,6 +29,9 @@ dependencies {
     //noinspection GradleDependency
     implementation 'jp.wasabeef:glide-transformations:2.0.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.2'
+    implementation 'com.github.clans:fab:1.6.4'
+    implementation 'com.tapadoo.android:alerter:2.0.6'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -54,7 +57,6 @@ dependencies {
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     implementation 'com.firebaseui:firebase-ui:1.2.0'
     implementation 'com.firebaseui:firebase-ui-auth:3.3.1'
-//    implementation 'com.firebaseui:firebase-ui-database:3.3.1'
 
 
 
