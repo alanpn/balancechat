@@ -3,23 +3,23 @@ package firebase.balancechat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -29,20 +29,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mikepenz.materialdrawer.AccountHeader;
-import com.mikepenz.materialdrawer.AccountHeaderBuilder;
-import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.tapadoo.alerter.Alerter;
 
 import java.util.Arrays;
@@ -51,11 +39,12 @@ import firebase.balancechat.model.Chat;
 import firebase.balancechat.model.Message;
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseListAdapter mChatAdapter;
@@ -65,13 +54,12 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mUserDatabaseReference;
     private ChildEventListener mChildEventListener;
 
-    private AccountHeader drawerHeader = null;
-    private Drawer drawer = null;
     private ImageView addConversationButton;
     private ListView mChatListView;
     private ValueEventListener mValueEventListener;
     private String currentUserEmail;
     private String mUsername;
+    private FirebaseUser user;
 
 
     @Override
@@ -82,26 +70,39 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         database = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    createUser(user);
-                    onSignedInInitialize(user);
+                    onCreateUser(user);
+                    onSignIn(user);
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
+                                    .setLogo(R.drawable.balance_launcher)
+                                    .setPrivacyPolicyUrl("https://policies.google.com/privacy")
                                     .setTheme(R.style.AppTheme)
                                     .setIsSmartLockEnabled(false)
                                     .setAvailableProviders(Arrays.asList(
                                             new AuthUI.IdpConfig.EmailBuilder().setRequireName(true).build(),
-                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
+//                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
                                             new AuthUI.IdpConfig.GoogleBuilder().build()))
                                     .build(),
                             Constants.SIGN_IN_REQUEST_CODE);
@@ -143,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            onCreateDrawer(user);
-        }
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        if (user != null) {
+//            onCreateDrawer(user);
+//        }
     }
 
     @Override
@@ -218,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
 
-    private void createUser(final FirebaseUser user) {
+    private void onCreateUser(final FirebaseUser user) {
         final DatabaseReference usersRef = database.getReference(Constants.USER_CHILD);
         final String encodedEmail = StringEncoding.encodeString(user.getEmail());
         final DatabaseReference userRef = usersRef.child(encodedEmail);
@@ -226,18 +227,6 @@ public class MainActivity extends AppCompatActivity {
         final String username = user.getDisplayName();
         final String phoneNumber = user.getPhoneNumber();
         final String providerId = user.getProviderId();
-
-
-
-/*        if (user.getPhotoUrl() == null) {
-            for (UserInfo userInfo : user.getProviderData()) {
-                if (userInfo.getPhotoUrl() != null) {
-                    user.setPhotoUrl(userInfo.getPhotoUrl().toString());
-                    break;
-                }
-            }
-        }*/
-
 
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -255,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void onSignedInInitialize(FirebaseUser user) {
+    private void onSignIn(@NonNull FirebaseUser user) {
         mUsername = user.getDisplayName();
         mChatDatabaseReference = database.getReference()
                 .child(Constants.USER_CHILD
@@ -264,7 +253,17 @@ public class MainActivity extends AppCompatActivity {
         mUserDatabaseReference = database.getReference()
                 .child(Constants.USER_CHILD);
 
-        hideShowAddChatButton(user);
+        conversationButtonTest(user);
+
+        String imageLocation = Constants.PROFILE_PICTURE_PATH + currentUserEmail;
+        ImageView drawerImage = (ImageView) findViewById(R.id.accountImageView);
+        TextView drawerUsername = (TextView) findViewById(R.id.accountNameView);
+        TextView drawerEmail = (TextView) findViewById(R.id.accountEmailView);
+        drawerUsername.setText(user.getDisplayName());
+        drawerEmail.setText(user.getEmail());
+        StorageReference storageRef = FirebaseStorage.getInstance()
+                .getReference().child(imageLocation);
+        LoadImage.loadImages(storageRef, drawerImage);
 
         //Initialize screen variables
         mChatListView = (ListView) findViewById(R.id.chatListView);
@@ -282,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
                 final TextView latestMessage = (TextView) view.findViewById(R.id.nameTextView);
                 final ImageView senderPic = (ImageView) view.findViewById(R.id.photoImageView);
+                final ImageView drawerAccountView = (ImageView) findViewById(R.id.accountImageView);
 
                 messageRef.addChildEventListener(new ChildEventListener() {
                     @Override
@@ -297,11 +297,9 @@ public class MainActivity extends AppCompatActivity {
                                         if (msgSender != null && msgSender.getProfilePicLocation() != null) {
                                             StorageReference storageRef = FirebaseStorage.getInstance()
                                                     .getReference().child(msgSender.getProfilePicLocation());
-                                            Glide.with(view.getContext())
-                                                    .using(new FirebaseImageLoader())
-                                                    .load(storageRef)
-                                                    .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                                                    .into(senderPic);
+                                            LoadImage.loadImages(storageRef, senderPic);
+
+                                            LoadImage.loadImages(storageRef, drawerAccountView);
                                         }
                                     }
 
@@ -371,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void hideShowAddChatButton(FirebaseUser user) {
+    private void conversationButtonTest(FirebaseUser user) {
         addConversationButton = (ImageView) findViewById(R.id.add_conversation);
         final String userLoggedIn = user.getEmail();
         final DatabaseReference friendsCheckRef = database.getReference(Constants.FRIEND_CHILD
@@ -380,11 +378,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 long size = dataSnapshot.getChildrenCount();
-                String strLong = Long.toString(size);
                 if (size > 0) {
-                    addConversationButton.setVisibility(View.VISIBLE);
+                    addConversationButton.setClickable(true);
                 } else {
-                    addConversationButton.setVisibility(View.GONE);
+                    addConversationButton.setClickable(false);
+
                 }
             }
 
@@ -395,99 +393,33 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void onCreateDrawer(FirebaseUser user) {
-/*        String encodedEmail = StringEncoding.encodeString(user.getEmail());
-        DatabaseReference usersRef = database.getReference(Constants.USER_CHILD);
-        DatabaseReference userRef = usersRef.child(encodedEmail);
-        DatabaseReference imgRef = userRef.child(Constants.PROFILE_PICTURE_PATH);*/
 
-
-        ProfileDrawerItem profile = new ProfileDrawerItem().withName(user.getDisplayName()).withEmail(user.getEmail()).withIcon(R.drawable.balance_launcher);
-        final PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withIcon(R.drawable.ic_action_account).withName(R.string.drawer_item_contact).withSelectable(false);
-        final SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withIcon(R.drawable.ic_action_settings).withDescription(R.string.settings_description).withName(R.string.drawer_item_settings).withSelectable(false);
-        final SecondaryDrawerItem item3 = new SecondaryDrawerItem().withIdentifier(3).withIcon(R.drawable.ic_menu_share).withName(R.string.drawer_item_invitation).withSelectable(false);
-        final SwitchDrawerItem item4 = new SwitchDrawerItem().withIdentifier(4).withIcon(R.drawable.ic_menu_slideshow).withName(R.string.drawer_item_slideshow).withChecked(true).withSelectable(false);
-        final SecondaryDrawerItem item5 = new SecondaryDrawerItem().withIdentifier(5).withIcon(R.drawable.ic_action_signout).withName(R.string.drawer_item_signout).withSelectable(false);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-
-        drawerHeader = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withHeaderBackground(R.drawable.side_nav_bar)
-                .addProfiles(
-                        profile
-//                        new ProfileSettingDrawerItem().withName("Manage Account").withIcon(R.drawable.ic_action_account_circle).withIdentifier(100001)
-                )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        return false;
-                    }
-                })
-                .build();
-
-        drawer = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withSelectedItem(-1)
-                .withAccountHeader(drawerHeader)
-                .addDrawerItems(
-                        item1,
-                        new DividerDrawerItem(),
-                        item2,
-                        item3,
-                        item4,
-                        new DividerDrawerItem(),
-                        item5
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem != null) {
-                            Intent intent = null;
-                            if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(MainActivity.this, ContactActivity.class);
-                            } else if (drawerItem.getIdentifier() == 2) {
-                                intent = new Intent(MainActivity.this, SettingsActivity.class);
-                            } else if (drawerItem.getIdentifier() == 3) {
-                                sendInvitation();
-                            } else if (drawerItem.getIdentifier() == 4) {
-
-                            } else if (drawerItem.getIdentifier() == 5) {
-                                AuthUI.getInstance().signOut(MainActivity.this);
-                            }
-
-                            if (intent != null) {
-                                MainActivity.this.startActivity(intent);
-                            }
-                        }
-                        return false;
-                    }
-                })
-                .build();
-
-
-    }
-
-
-//     add the values to the bundle
-/*    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState = drawer.saveInstanceState(outState);
-        outState = drawerHeader.saveInstanceState(outState);
-        super.onSaveInstanceState(outState);
-    }*/
 
     @Override
-    public void onBackPressed() {
-        if (drawer != null && drawer.isDrawerOpen()) {
-            drawer.closeDrawer();
-        } else {
-            super.onBackPressed();
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        Intent intent = null;
+
+        if (id == R.id.nav_contacts) {
+            intent = new Intent(MainActivity.this, ContactActivity.class);
+        } else if (id == R.id.nav_share) {
+            sendInvitation();
+        } else if (id == R.id.nav_settings) {
+            intent = new Intent(MainActivity.this, SettingsActivity.class);
+        } else if (id == R.id.nav_signout) {
+            AuthUI.getInstance().signOut(this);
         }
+
+        if (intent != null) {
+            MainActivity.this.startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
-    private void sendInvitation() {
+    public void sendInvitation() {
         Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
                 .setMessage(getString(R.string.invitation_message))
                 .setCallToActionText(getString(R.string.invitation_cta))
@@ -495,4 +427,13 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, Constants.REQUEST_INVITE);
     }
 
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

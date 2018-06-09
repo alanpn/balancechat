@@ -1,63 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="firebase.balancechat.MainActivity">
+    tools:openDrawer="start">
 
-    <android.support.design.widget.AppBarLayout
+    <include
+        layout="@layout/app_bar_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/item_main" />
-
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/action_menu"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_marginTop="10dp"
-        app:fab_showShadow="true"
-        app:fab_size="normal"
-        app:menu_colorNormal="@color/colorDeepTeal"
-        app:menu_colorPressed="@color/colorPrimaryLight"
-        app:menu_colorRipple="@color/colorRipple"
-        app:menu_icon="@drawable/ic_action_add"
-        app:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
-        app:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
-        app:menu_shadowColor="#66000000"
-        app:menu_shadowRadius="4dp"
-        app:menu_shadowXOffset="1dp"
-        app:menu_shadowYOffset="3dp">
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/item_drawer_header"
+        app:menu="@menu/item_drawer" />
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab14"
-            style="@style/MenuButtonsSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_home" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/add_conversation"
-            style="@style/MenuButtonsSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="createNewChat"
-            android:src="@drawable/ic_menu_message"
-            app:fab_label="New Chat" />
-
-    </com.github.clans.fab.FloatingActionMenu>
-
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.DrawerLayout>

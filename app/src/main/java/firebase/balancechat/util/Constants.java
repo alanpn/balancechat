@@ -9,7 +9,7 @@ public final class Constants {
     public static final String MESSAGE_CHILD = "messages";
     public static final String PROFILE_PICTURE_LOCATION_CHILD = "profilePicLocation";
 //    public static final String PROFILE_PICTURE_LOCATION_CHILD = "photoUrl";
-    public static final String PROFILE_PICTURE_PATH = "Photos/profile_picture/";
+    public static final String PROFILE_PICTURE_PATH = "gs://balancechat-6f37f.appspot.com/Photos/profile_picture/";
 
     /*??*/
     public static final String MESSAGE_ID = "MID";

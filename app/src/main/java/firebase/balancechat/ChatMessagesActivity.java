@@ -26,10 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,8 +54,8 @@ import java.util.UUID;
 import firebase.balancechat.model.Message;
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class ChatMessagesActivity extends AppCompatActivity {
@@ -422,7 +420,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
                                 if (userInfo != null && userInfo.getProfilePicLocation() != null) {
                                     StorageReference storageRef = FirebaseStorage.getInstance()
                                             .getReference().child(userInfo.getProfilePicLocation());
-                                    glideTransform(storageRef, view, rightImage);
+                                    LoadImage.loadImages(storageRef, rightImage);
                                 }
                             } catch (Exception e) {
                                 Log.e("ERR", e.toString());
@@ -464,7 +462,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
                                 try {
                                     StorageReference storageRef = FirebaseStorage.getInstance()
                                             .getReference().child(userInfo.getProfilePicLocation());
-                                    glideTransform(storageRef, view, leftImage);
+                                    LoadImage.loadImages(storageRef, leftImage);
                                 } catch (Exception e) {
                                     Log.e("Err", e.toString());
                                 }
@@ -489,10 +487,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
                         activateVoiceMsg.setVisibility(View.GONE);
                         activateVoiceMsg.setImageDrawable(null);
                         //storageRef.getDownloadUrl().addOnCompleteListener(new O)
-                        Glide.with(view.getContext())
-                                .using(new FirebaseImageLoader())
-                                .load(storageRef)
-                                .into(imageView);
+                        LoadImage.loadImages(storageRef, imageView);
                     }
                     if (message.getContentType().equals("VOICE")) {
                         //show play button
@@ -531,14 +526,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
             }
         };
         mMessageList.setAdapter(mMessageListAdapter);
-    }
-
-    private void glideTransform(StorageReference storageRef, View view, ImageView leftImage) {
-        Glide.with(view.getContext())
-                .using(new FirebaseImageLoader())
-                .load(storageRef)
-                .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                .into(leftImage);
     }
 
     private void playSound(Uri uri) {

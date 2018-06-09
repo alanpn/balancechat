@@ -52,10 +52,12 @@
     <string name="invitation_message">Please join me for a balancechat</string>
     <string name="invitation_cta">Call to action</string>
     <string name="invitation_title">Balance Invite</string>
-    <string name="profile_picture_path">Photos/profile_picture/</string>
+    <string name="profile_picture_path">gs://balancechat-6f37f.appspot.com/Photos/profile_picture/</string>
     <string name="waiting_for_loading">Load in progress…</string>
     <string name="profile_picture_path_child">/profile_pic</string>
     <string name="user_picture">User Picture</string>
     <string name="drawer_item_signout">Sign out</string>
+    <string name="noname">Name</string>
+    <string name="account">Account</string>
 
 </resources>

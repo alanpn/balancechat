@@ -21,4 +21,41 @@
         android:transcriptMode="alwaysScroll"
         tools:listitem="@layout/item_chats"/>
 
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/action_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|end"
+        app:fab_showShadow="true"
+        app:fab_size="normal"
+        app:menu_colorNormal="@color/colorDeepTeal"
+        app:menu_colorPressed="@color/colorPrimaryLight"
+        app:menu_colorRipple="@color/colorRipple"
+        app:menu_icon="@drawable/ic_action_add"
+        app:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+        app:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+        app:menu_shadowColor="#66000000"
+        app:menu_shadowRadius="4dp"
+        app:menu_shadowXOffset="1dp"
+        app:menu_shadowYOffset="3dp">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab14"
+            style="@style/MenuButtonsSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_home" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/add_conversation"
+            style="@style/MenuButtonsSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="createNewChat"
+            android:src="@drawable/ic_menu_message"
+            app:fab_label="New Chat" />
+    </com.github.clans.fab.FloatingActionMenu>
+
 </RelativeLayout>

@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:statusBarColor="@color/colorDeepTeal"
+    app:statusBarBackground="@color/colorDeepTeal"
     tools:context="firebase.balancechat.ChatActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -22,7 +24,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/materialize_toolbar"
+        android:layout_marginTop="50dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -46,11 +48,9 @@
 
             <ImageButton
                 android:id="@+id/createButton"
-                style="@android:style/Widget.Holo.Light.ImageButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="15dp"
-
                 android:backgroundTint="@color/colorPrimaryLight"
                 android:onClick="createChat"
                 app:srcCompat="@drawable/ic_action_add" />

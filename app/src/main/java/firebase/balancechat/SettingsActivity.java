@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -31,8 +29,8 @@ import java.util.UUID;
 
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class SettingsActivity extends AppCompatActivity {
@@ -54,6 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
         mView = SettingsActivity.this;
         initializeScreen();
         openImageSelector();
@@ -71,10 +70,11 @@ public class SettingsActivity extends AppCompatActivity {
             progressDialog.show();
 
             Uri uri = data.getData();
-            final String imageLocation = getString(R.string.profile_picture_path) + currentUserEmail;
+            final String imageLocation = Constants.PROFILE_PICTURE_PATH + currentUserEmail;
             final String imageLocationId = imageLocation + "/" + uri.getLastPathSegment();
             final String uniqueId = UUID.randomUUID().toString();
-            final StorageReference filepath = storageReference.child(imageLocation).child(uniqueId + Constants.PROFILE_PICTURE_PATH);
+//            final StorageReference filepath = storageReference.child(imageLocation).child(uniqueId + Constants.PROFILE_PICTURE_PATH);
+            final StorageReference filepath = storageReference.child(imageLocation).child(uniqueId);
             final String downloadURl = filepath.getPath();
             filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -96,35 +96,12 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         StorageReference storageRef = FirebaseStorage.getInstance()
                                 .getReference().child(imageLocation);
-                        glideTransform(storageRef, imageView);
-
-
-              /*          DrawerImageLoader.init(new AbstractDrawerImageLoader() {
-                            @Override
-                            public void set(ImageView imageView, Uri uri, Drawable placeholder) {
-                                Picasso.get().load(uri).placeholder(placeholder).into(imageView);
-                            }
-
-                            @Override
-                            public void cancel(ImageView imageView) {
-                                Picasso.get().cancelRequest(imageView);
-                            }
-                        });
-                        new UserProfileChangeRequest.Builder().setPhotoUri(Uri.parse(imageLocation)).build();*/
+                        LoadImage.loadImages(storageRef, imageView);
 
                     }
                 }
         );
 
-
-    }
-
-    private void glideTransform(StorageReference storageRef, ImageView imageView) {
-        Glide.with(mView)
-                .using(new FirebaseImageLoader())
-                .load(storageRef)
-                .bitmapTransform(new CropCircleTransformation(mView))
-                .into(imageView);
     }
 
     public void openImageSelector() {
@@ -151,7 +128,8 @@ public class SettingsActivity extends AppCompatActivity {
                             StorageReference storageRef = FirebaseStorage.getInstance()
                                     .getReference().child(user.getProfilePicLocation());
 
-                            glideTransform(storageRef, imageView);
+
+                            LoadImage.loadImages(storageRef, imageView);
 
                         }
                     }

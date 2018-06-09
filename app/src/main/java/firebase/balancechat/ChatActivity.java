@@ -2,6 +2,7 @@ package firebase.balancechat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -14,10 +15,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,8 +34,8 @@ import firebase.balancechat.model.Friend;
 import firebase.balancechat.model.Message;
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /*
     This view will show a list of the users friends,
@@ -105,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 mUserDatabaseRef.child(friend).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         User fUser = dataSnapshot.getValue(User.class);
                         if (fUser != null) {
                             ((TextView) view.findViewById(R.id.messageTextView))
@@ -114,23 +113,19 @@ public class ChatActivity extends AppCompatActivity {
                                 try {
                                     StorageReference storageRef = FirebaseStorage.getInstance()
                                             .getReference().child(fUser.getProfilePicLocation());
-                                    Glide.with(view.getContext())
-                                            .using(new FirebaseImageLoader())
-                                            .load(storageRef)
-                                            .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                                            .into((ImageView) view.findViewById(R.id.photoImageView));
+                                    LoadImage.loadImages(storageRef, (ImageView) view.findViewById(R.id.photoImageView));
                                 } catch (Exception e) {
                                     Log.e("Err", e.toString());
                                 }
                             }
                         } else {
                             ((TextView) view.findViewById(R.id.messageTextView))
-                                    .setText("A girl has no name");
+                                    .setText(R.string.noname);
                         }
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
                 });
@@ -209,8 +204,7 @@ public class ChatActivity extends AppCompatActivity {
 
     //TODO: Add create new Chat function
     public void createChat(View view) {
-        //final String userLoggedIn = mFirebaseAuth.getCurrentUser().getEmail();
-        //Log.e(TAG, "User logged in is: " + userLoggedIn);
+        // final String userLoggedIn = mFirebaseAuth.getCurrentUser().getEmail();
         // final String newFriendEncodedEmail = EmailEncoding.commaEncodePeriod(newFriendEmail);
         final DatabaseReference chatRef = mFirebaseDatabase.getReference(Constants.CHAT_CHILD);
         final DatabaseReference messageRef = mFirebaseDatabase.getReference(Constants.MESSAGE_CHILD);
@@ -218,7 +212,6 @@ public class ChatActivity extends AppCompatActivity {
         final String pushKey = pushRef.getKey();
         mChat.setUid(pushKey);
         mChat.setChatName(mChatName.getText().toString());
-        Log.e(TAG, "Push key is: " + pushKey);
 
         //Create HashMap for Pushing Conv
         HashMap<String, Object> chatItemMap = new HashMap<String, Object>();

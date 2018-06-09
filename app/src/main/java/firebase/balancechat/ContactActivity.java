@@ -3,15 +3,12 @@ package firebase.balancechat;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,8 +23,8 @@ import java.util.List;
 
 import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
+import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class ContactActivity extends AppCompatActivity {
@@ -70,8 +67,6 @@ public class ContactActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (email.equals(mCurrentUserEmail)) { // choose self
                             view.findViewById(R.id.friendRow).setVisibility(View.GONE);
-                            view.setMinimumWidth(0);
-                            view.setMinimumHeight(0);
                         } else if (dataSnapshot.getValue() != null) { // is friend
                             view.findViewById(R.id.addFriend).setVisibility(View.GONE);
                             view.findViewById(R.id.removeFriend).setVisibility(View.VISIBLE);
@@ -90,11 +85,7 @@ public class ContactActivity extends AppCompatActivity {
                 if (user.getProfilePicLocation() != null && user.getProfilePicLocation().length() > 0) {
                     StorageReference storageRef = FirebaseStorage.getInstance()
                             .getReference().child(user.getProfilePicLocation());
-                    Glide.with(view.getContext())
-                            .using(new FirebaseImageLoader())
-                            .load(storageRef)
-                            .bitmapTransform(new CropCircleTransformation(view.getContext()))
-                            .into((ImageView) view.findViewById(R.id.photoImageView));
+                    LoadImage.loadImages(storageRef, (ImageView) view.findViewById(R.id.photoImageView));
                 }
 
                 ((TextView) view.findViewById(R.id.messageTextView)).setText(user.getUsername());
