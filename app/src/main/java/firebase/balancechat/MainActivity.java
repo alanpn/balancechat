@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.appinvite.AppInviteInvitation;
@@ -41,6 +43,7 @@ import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
+import okhttp3.Response;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class MainActivity extends AppCompatActivity
@@ -59,7 +62,6 @@ public class MainActivity extends AppCompatActivity
     private ValueEventListener mValueEventListener;
     private String currentUserEmail;
     private String mUsername;
-    private FirebaseUser user;
 
 
     @Override
@@ -72,7 +74,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         database = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
-        user = FirebaseAuth.getInstance().getCurrentUser();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -82,7 +83,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
 
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -97,7 +97,8 @@ public class MainActivity extends AppCompatActivity
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setLogo(R.drawable.balance_launcher)
-                                    .setPrivacyPolicyUrl("https://policies.google.com/privacy")
+                                    .setTosUrl("https://superapp.example.com/terms-of-service.html")
+                                    .setPrivacyPolicyUrl("https://superapp.example.com/privacy-policy.html")
                                     .setTheme(R.style.AppTheme)
                                     .setIsSmartLockEnabled(false)
                                     .setAvailableProviders(Arrays.asList(
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
     public void createNewChat(View view) {
         Intent intent = new Intent(this, ChatActivity.class);
         startActivity(intent);
@@ -121,15 +123,33 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (requestCode == Constants.SIGN_IN_REQUEST_CODE) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 Alerter.create(this)
-                        .setTitle(getString(R.string.greeting) + " " + user.getDisplayName())
+                        .setTitle(getString(R.string.greeting) + " " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName())
                         .setBackgroundColorRes(R.color.colorDeepTeal)
                         .setIcon(R.drawable.ic_action_info)
                         .show();
             } else {
+                if (response == null) {
+                    Alerter.create(this)
+                            .setTitle("Canceled by User")
+                            .show();
+                    return;
+                }
+                if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                    Alerter.create(this)
+                            .setTitle("No Internet Connection")
+                            .show();
+                    return;
+                }
+                if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                    Alerter.create(this)
+                            .setTitle("Unknown Error")
+                            .show();
+                    return;
+                }
                 Alerter.create(this)
                         .setTitle(R.string.login_fail)
                         .show();
@@ -219,7 +239,7 @@ public class MainActivity extends AppCompatActivity
      */
 
 
-    private void onCreateUser(final FirebaseUser user) {
+    private void onCreateUser(FirebaseUser user) {
         final DatabaseReference usersRef = database.getReference(Constants.USER_CHILD);
         final String encodedEmail = StringEncoding.encodeString(user.getEmail());
         final DatabaseReference userRef = usersRef.child(encodedEmail);
@@ -259,8 +279,13 @@ public class MainActivity extends AppCompatActivity
         ImageView drawerImage = (ImageView) findViewById(R.id.accountImageView);
         TextView drawerUsername = (TextView) findViewById(R.id.accountNameView);
         TextView drawerEmail = (TextView) findViewById(R.id.accountEmailView);
-        drawerUsername.setText(user.getDisplayName());
-        drawerEmail.setText(user.getEmail());
+        if (drawerUsername != null) {
+            drawerUsername.setText(user.getDisplayName());
+        }
+
+        if (drawerEmail != null) {
+            drawerEmail.setText(user.getEmail());
+        }
         StorageReference storageRef = FirebaseStorage.getInstance()
                 .getReference().child(imageLocation);
         LoadImage.loadImages(storageRef, drawerImage);
@@ -392,7 +417,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
-
 
 
     @Override
