@@ -2,35 +2,41 @@ package firebase.balancechat.model;
 
 import java.util.Date;
 
+import firebase.balancechat.util.Constants;
+import tgio.rncryptor.RNCryptorNative;
+
 public class Message {
 
+    private RNCryptorNative RNCryptor = new RNCryptorNative();
     private String sender;
     private String message;
     private Boolean multimedia = false;
-    private String contentType = "";
-    private String contentLocation = "";
+    private String contentType = null;
+    private String contentLocation = null;
     private long timestamp;
 
     public Message() {
 
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    //Constructor for plain text message
-    public Message(String sender, String message, String time) {
+    public Message(String sender, String message) {
         this.sender = sender;
-        this.message = message;
+        this.message = new String(RNCryptor.encrypt(message, Constants.ENCRYPTION_KEY));
         timestamp = new Date().getTime();
-        this.multimedia = false;
     }
 
-    //Constructor for Multimedia message
-    public Message(String sender, String message, String contentType, String contentLocation, String time) {
+    /* constructor for text */
+    public Message(String sender, String message, String contentType) {
         this.sender = sender;
-        this.message = message;
+        this.message = new String(RNCryptor.encrypt(message, Constants.ENCRYPTION_KEY));
+        this.contentType = contentType;
+        timestamp = new Date().getTime();
+    }
+
+    /* constructor for multimedia */
+    public Message(String sender, String message, String contentType, String contentLocation) {
+        this.sender = sender;
+        this.message = new String(RNCryptor.encrypt(message, Constants.ENCRYPTION_KEY));
         this.multimedia = true;
         this.contentType = contentType;
         timestamp = new Date().getTime();

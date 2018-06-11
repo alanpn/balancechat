@@ -36,6 +36,7 @@ import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
+import tgio.rncryptor.RNCryptorNative;
 
 /*
     This view will show a list of the users friends,
@@ -63,6 +64,8 @@ public class ChatActivity extends AppCompatActivity {
     private Chat mChat;
     private DatabaseReference mUserDatabaseRef;
     private ImageButton mCreateButton;
+    private RNCryptorNative RNCryptor = new RNCryptorNative();
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -223,12 +226,14 @@ public class ChatActivity extends AppCompatActivity {
         //Create corresponding message location for this chat
         String initialMessage = mFriendsInChat.getText().toString();
         Message initialMessages =
-                new Message("System", initialMessage, "");
+                new Message("System", initialMessage);
         final DatabaseReference initMsgRef =
                 mFirebaseDatabase.getReference(Constants.MESSAGE_CHILD + "/" + pushKey);
         final DatabaseReference msgPush = initMsgRef.push();
         final String msgPushKey = msgPush.getKey();
-        initMsgRef.child(msgPushKey).setValue(initialMessages);
+        if (msgPushKey != null) {
+            initMsgRef.child(msgPushKey).setValue(initialMessages);
+        }
 
         //Must add chat reference under every user object. Chat/User/Chats[chat1, chat2 ..]
         //Add to current users chat object

@@ -44,6 +44,7 @@ import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
 import okhttp3.Response;
+import tgio.rncryptor.RNCryptorNative;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class MainActivity extends AppCompatActivity
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity
     private ValueEventListener mValueEventListener;
     private String currentUserEmail;
     private String mUsername;
+    private RNCryptorNative RNCryptor = new RNCryptorNative();
 
 
     @Override
@@ -312,7 +314,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
                         Message newMsg = dataSnapshot.getValue(Message.class);
-                        latestMessage.setText(StringEncoding.decodeString(newMsg.getSender()) + ": " + newMsg.getMessage());
+                        latestMessage.setText(StringEncoding.decodeString(newMsg.getSender()) + ": " + RNCryptor.decrypt(newMsg.getMessage(), Constants.ENCRYPTION_KEY));
 
                         mUserDatabaseReference.child(newMsg.getSender())
                                 .addValueEventListener(new ValueEventListener() {

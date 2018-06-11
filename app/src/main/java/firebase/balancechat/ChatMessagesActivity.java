@@ -56,6 +56,7 @@ import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
+import tgio.rncryptor.RNCryptorNative;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class ChatMessagesActivity extends AppCompatActivity {
@@ -85,8 +86,8 @@ public class ChatMessagesActivity extends AppCompatActivity {
     private MediaRecorder mRecorder;
     private String mFileName = null;
 
-    private static final String LOG_TAG = "Record_log";
     private ValueEventListener mValueEventListener;
+    private RNCryptorNative RNCryptor = new RNCryptorNative();
 
     //Audio Runtime Permissions
     private boolean permissionToRecordAccepted = false;
@@ -134,7 +135,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
         initializeScreen();
         mToolBar.setTitle(chatName);
         showMessages();
-        addListeners();
+//        addListeners();
         openImageSelector();
         openVoiceRecorder();
 
@@ -227,7 +228,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
         try {
             mRecorder.prepare();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+
         }
 
         mRecorder.start();
@@ -266,38 +267,35 @@ public class ChatMessagesActivity extends AppCompatActivity {
         });
     }
 
-    public void addListeners() {
-        mMessageField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.toString().trim().length() > 0) {
-                    mSendButton.setEnabled(true);
-                } else {
-                    mSendButton.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-    }
+//    public void addListeners() {
+//        mMessageField.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                if (charSequence.toString().trim().length() > 0) {
+//                    mSendButton.setEnabled(true);
+//                } else {
+//                    mSendButton.setEnabled(false);
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//            }
+//        });
+//    }
 
     //If voice message add them to Firebase.Storage
     public void addVoiceToMessages(String voiceLocation) {
         final DatabaseReference pushRef = mMessageDatabaseReference.push();
         final String pushKey = pushRef.getKey();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        Date date = new Date();
-        String timestamp = dateFormat.format(date);
         //Create message object with text/voice etc
         Message message =
                 new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()),
-                        "Message: Voice Sent", "VOICE", voiceLocation, timestamp);
+                        "Message: Voice Sent", "VOICE", voiceLocation);
         //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
         HashMap<String, Object> messageObj = (HashMap<String, Object>) new ObjectMapper()
@@ -317,13 +315,9 @@ public class ChatMessagesActivity extends AppCompatActivity {
     public void addImageToMessages(String imageLocation) {
         final DatabaseReference pushRef = mMessageDatabaseReference.push();
         final String pushKey = pushRef.getKey();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        Date date = new Date();
-        String timestamp = dateFormat.format(date);
-        //Create message object with text/voice etc
         Message message =
                 new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()),
-                        "Message: Image Sent", "IMAGE", imageLocation, timestamp);
+                        "Message: Image Sent", "IMAGE", imageLocation);
         //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
         HashMap<String, Object> messageObj = (HashMap<String, Object>) new ObjectMapper()
@@ -345,30 +339,10 @@ public class ChatMessagesActivity extends AppCompatActivity {
         final String pushKey = pushRef.getKey();
 
         String messageString = mMessageField.getText().toString();
+        if (isMessageWrong(messageString)) return;
+        Message message = new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()), messageString, "MESSAGE");
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.MESSAGE_TIME_FORMAT);
-        Date date = new Date();
-        String timestamp = dateFormat.format(date);
-        //Create message object with text/voice etc
-        Message message = new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()), messageString, timestamp);
 
-        if (messageString.equals("")) {
-            Alerter.create(this)
-                    .setTitle(R.string.EMPTY_MSG)
-                    .setBackgroundColorRes(R.color.colorWarning)
-                    .setIcon(R.drawable.ic_action_warning)
-                    .show();
-            return;
-        }
-
-        if (messageString.length() > Constants.MAX_MSG_LENGTH) {
-            Alerter.create(this)
-                    .setTitle(getString(R.string.MSG_IS_TOO_LONG) + " " + Constants.MAX_MSG_LENGTH)
-                    .setBackgroundColorRes(R.color.colorWarning)
-                    .setIcon(R.drawable.ic_action_warning)
-                    .show();
-            return;
-        }
 
         //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
@@ -384,12 +358,33 @@ public class ChatMessagesActivity extends AppCompatActivity {
                 });
     }
 
+    private boolean isMessageWrong(String messageString) {
+        if (messageString.equals("")) {
+            Alerter.create(this)
+                    .setTitle(R.string.EMPTY_MSG)
+                    .setBackgroundColorRes(R.color.colorWarning)
+                    .setIcon(R.drawable.ic_action_warning)
+                    .show();
+            return true;
+        }
+
+        if (messageString.length() > Constants.MAX_MSG_LENGTH) {
+            Alerter.create(this)
+                    .setTitle(getString(R.string.MSG_IS_TOO_LONG) + " " + Constants.MAX_MSG_LENGTH)
+                    .setBackgroundColorRes(R.color.colorWarning)
+                    .setIcon(R.drawable.ic_action_warning)
+                    .show();
+            return true;
+        }
+        return false;
+    }
+
     private void showMessages() {
         mMessageListAdapter = new FirebaseListAdapter<Message>(this, Message.class, R.layout.item_messages, mMessageDatabaseReference) {
             @Override
             protected void populateView(final View view, final Message message, final int position) {
                 LinearLayout messageLine = (LinearLayout) view.findViewById(R.id.messageLine);
-                TextView messgaeText = (TextView) view.findViewById(R.id.messageTextView);
+                TextView messageText = (TextView) view.findViewById(R.id.messageTextView);
                 TextView senderText = (TextView) view.findViewById(R.id.senderTextView);
                 TextView timeTextView = (TextView) view.findViewById(R.id.timeTextView);
                 final ImageView leftImage = (ImageView) view.findViewById(R.id.leftMessagePic);
@@ -399,13 +394,13 @@ public class ChatMessagesActivity extends AppCompatActivity {
                 timeTextView.setText(DateFormat.format(Constants.MESSAGE_TIME_FORMAT, message.getTimestamp()));
 
                 //set message and sender text
-                messgaeText.setText(message.getMessage());
+                messageText.setText(RNCryptor.decrypt(message.getMessage(), Constants.ENCRYPTION_KEY));
                 senderText.setText(StringEncoding.decodeString(message.getSender()));
                 //If you sent this message, right align
                 String mSender = message.getSender();
 
                 if (mSender.equals(currentUserEmail)) {
-                    //messgaeText.setGravity(Gravity.RIGHT);
+                    //messageText.setGravity(Gravity.RIGHT);
                     //senderText.setGravity(Gravity.RIGHT);
                     messageLine.setGravity(Gravity.RIGHT);
                     leftImage.setVisibility(View.GONE);
@@ -436,20 +431,20 @@ public class ChatMessagesActivity extends AppCompatActivity {
                     });
 
                     individMessageLayout.setBackgroundResource(R.drawable.roundedmessagescolored);
-                    //messgaeText.setBackgroundColor(ResourcesCompat.getColor(getResources(),
+                    //messageText.setBackgroundColor(ResourcesCompat.getColor(getResources(),
                     //       R.color.colorAccent, null));
                 } else if (mSender.equals("System")) {
                     messageLine.setGravity(Gravity.CENTER_HORIZONTAL);
                     leftImage.setVisibility(View.GONE);
                     rightImage.setVisibility(View.GONE);
                 } else {
-                    //messgaeText.setGravity(Gravity.LEFT);
+                    //messageText.setGravity(Gravity.LEFT);
                     //senderText.setGravity(Gravity.LEFT);
                     messageLine.setGravity(Gravity.LEFT);
                     leftImage.setVisibility(View.VISIBLE);
                     rightImage.setVisibility(View.GONE);
                     individMessageLayout.setBackgroundResource(R.drawable.roundedmessages);
-                    //messgaeText.setBackgroundColor(ResourcesCompat.getColor(getResources(),
+                    //messageText.setBackgroundColor(ResourcesCompat.getColor(getResources(),
                     //       R.color.colorPrimary, null));
 
 

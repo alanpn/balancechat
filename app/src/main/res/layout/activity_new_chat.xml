@@ -51,7 +51,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="15dp"
-                android:backgroundTint="@color/colorPrimaryLight"
+                android:backgroundTint="@android:color/transparent"
                 android:onClick="createChat"
                 app:srcCompat="@drawable/ic_action_add" />
         </LinearLayout>
