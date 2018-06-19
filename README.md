@@ -1,4 +1,4 @@
-# "`Balance`" Android-chat based on Google Firebase
+# Android-chat based on Google Firebase
 
 The software product is implemented with the Java programming language in the Android Studio development environment.
 
