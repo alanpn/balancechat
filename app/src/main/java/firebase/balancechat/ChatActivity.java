@@ -38,11 +38,7 @@ import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
 import tgio.rncryptor.RNCryptorNative;
 
-/*
-    This view will show a list of the users friends,
-    the user can select the friends they want to start
-    a new conversation with.
- */
+@SuppressWarnings("FieldCanBeLocal")
 public class ChatActivity extends AppCompatActivity {
     private String TAG = "New Conversation";
 

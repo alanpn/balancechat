@@ -22,4 +22,5 @@ public final class Constants {
     public static final int GALLERY_INTENT = 2;
     public static final String ENCRYPTION_KEY = "%F4^4gd#75!24";
 
+    public static final int MIN_PASS_LENGTH = 10;
 }

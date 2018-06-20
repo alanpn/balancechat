@@ -6,16 +6,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.tapadoo.alerter.Alerter;
 
 import java.util.UUID;
 
@@ -40,6 +49,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ImageButton photoPickerButton;
+    private TextInputLayout textItem;
+    private EditText editText;
     private ProgressDialog progressDialog;
     private StorageReference storageReference;
     private ImageView profileImage;
@@ -56,6 +67,8 @@ public class SettingsActivity extends AppCompatActivity {
         mView = SettingsActivity.this;
         initializeScreen();
         openImageSelector();
+        editUsername();
+        editPassword();
         initializeUserInfo();
     }
 
@@ -116,6 +129,62 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void editPassword() {
+        photoPickerButton = (ImageButton) findViewById(R.id.imageButton1);
+        editText = (EditText) findViewById(R.id.settingsInputEditText1);
+        photoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String stringPassword = editText.getText().toString();
+                if (stringPassword.equals("")) {
+                    Alerter.create(SettingsActivity.this)
+                            .setTitle("Enter new password")
+                            .setBackgroundColorRes(R.color.colorWarning)
+                            .setIcon(R.drawable.ic_action_warning)
+                            .show();
+                    return;
+                }
+                FirebaseAuth.getInstance().getCurrentUser().updatePassword(stringPassword);
+                Alerter.create(SettingsActivity.this)
+                        .setTitle("Your password updated")
+                        .setBackgroundColorRes(R.color.colorDeepTeal)
+                        .setIcon(R.drawable.ic_action_info)
+                        .show();
+
+            }
+        });
+    }
+
+    public void editUsername() {
+        photoPickerButton = (ImageButton) findViewById(R.id.imageButton2);
+        editText = (EditText) findViewById(R.id.settingsInputEditText2);
+        photoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String stringEmail = editText.getText().toString();
+                if (stringEmail.equals("")) {
+                    Alerter.create(SettingsActivity.this)
+                            .setTitle("Enter new username")
+                            .setBackgroundColorRes(R.color.colorWarning)
+                            .setIcon(R.drawable.ic_action_warning)
+                            .show();
+                    return;
+                }
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(stringEmail)
+                        .build();
+                FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates);
+                Alerter.create(SettingsActivity.this)
+                        .setTitle("Your username updated")
+                        .setBackgroundColorRes(R.color.colorDeepTeal)
+                        .setIcon(R.drawable.ic_action_info)
+                        .show();
+
+            }
+        });
+    }
+
 
     public void initializeUserInfo() {
         final ImageView imageView = (ImageView) findViewById(R.id.profilePicture);

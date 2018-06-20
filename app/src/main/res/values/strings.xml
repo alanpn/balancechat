@@ -25,8 +25,8 @@
     <string name="title_activity_drawer">DrawerActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">Name</string>
+    <string name="nav_header_subtitle">Email</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_section1">Section 1</string>
@@ -49,13 +49,17 @@
     <string name="greeting">Welcome back, </string>
     <string name="login_fail">Login Failed. Please Try Again.</string>
     <string name="sign_out_msg">You signed out of the account.</string>
-    <string name="invitation_message">Please join me for a balancechat</string>
-    <string name="invitation_cta">Call to action</string>
+    <string name="invitation_message">Please join me for a balancechat: https://bit.ly/2JJlIba</string>
     <string name="invitation_title">Balance Invite</string>
     <string name="waiting_for_loading">Load in progress…</string>
     <string name="user_picture">User Picture</string>
     <string name="drawer_item_signout">Sign out</string>
     <string name="noname">Name</string>
     <string name="account">Account</string>
+    <string name="privacy_policy">https://superapp.example.com/privacy-policy.html</string>
+    <string name="terms_of_service">https://superapp.example.com/terms-of-service.html</string>
+    <string name="set_settings">Set</string>
+    <string name="PASS_IS_TOO_SHORT">Min pass length:</string>
+    <string name="UPDATED">Updated</string>
 
 </resources>

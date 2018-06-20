@@ -43,19 +43,19 @@ import firebase.balancechat.model.User;
 import firebase.balancechat.util.Constants;
 import firebase.balancechat.util.LoadImage;
 import firebase.balancechat.util.StringEncoding;
-import okhttp3.Response;
 import tgio.rncryptor.RNCryptorNative;
 
 @SuppressWarnings("FieldCanBeLocal")
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private FirebaseAuth mFirebaseAuth;
+//    private FirebaseAuth mFirebaseAuth;
     private FirebaseListAdapter mChatAdapter;
     private FirebaseDatabase database;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private DatabaseReference mChatDatabaseReference;
     private DatabaseReference mUserDatabaseReference;
+    private DatabaseReference mHeaderDatabaseReference;
     private ChildEventListener mChildEventListener;
 
     private ImageView addConversationButton;
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity
     private String currentUserEmail;
     private String mUsername;
     private RNCryptorNative RNCryptor = new RNCryptorNative();
+    private String userEmail;
+//    private FirebaseUser user;
 
 
     @Override
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         database = FirebaseDatabase.getInstance();
-        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -105,7 +107,6 @@ public class MainActivity extends AppCompatActivity
                                     .setIsSmartLockEnabled(false)
                                     .setAvailableProviders(Arrays.asList(
                                             new AuthUI.IdpConfig.EmailBuilder().setRequireName(true).build(),
-//                                            new AuthUI.IdpConfig.PhoneBuilder().build(),
                                             new AuthUI.IdpConfig.GoogleBuilder().build()))
                                     .build(),
                             Constants.SIGN_IN_REQUEST_CODE);
@@ -113,7 +114,6 @@ public class MainActivity extends AppCompatActivity
             }
         };
     }
-
 
 
     public void createNewChat(View view) {
@@ -163,17 +163,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
+
         super.onResume();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+        FirebaseAuth.getInstance().addAuthStateListener(mAuthStateListener);
+
 
 //        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 //        if (user != null) {
-//            onCreateDrawer(user);
+//            onSignIn(user);
 //        }
     }
 
     @Override
     protected void onRestart() {
+
         super.onRestart();
 
     }
@@ -187,7 +190,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         if (mAuthStateListener != null) {
-            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+            FirebaseAuth.getInstance().removeAuthStateListener(mAuthStateListener);
         }
         FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.action_menu);
         floatingActionMenu.close(false);
@@ -202,6 +205,18 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
     }
+//
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putString("someVarB", user.getEmail());
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        userEmail = savedInstanceState.getString("someVarB");
+//    }
 
     /*
 
@@ -267,7 +282,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onSignIn(@NonNull FirebaseUser user) {
-        mUsername = user.getDisplayName();
         mChatDatabaseReference = database.getReference()
                 .child(Constants.USER_CHILD
                         + "/" + StringEncoding.encodeString(user.getEmail()) + "/"
@@ -275,12 +289,18 @@ public class MainActivity extends AppCompatActivity
         mUserDatabaseReference = database.getReference()
                 .child(Constants.USER_CHILD);
 
+        currentUserEmail = StringEncoding.encodeString(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        mHeaderDatabaseReference = database
+                .getReference().child(Constants.USER_CHILD
+                        + "/" + currentUserEmail);
+
         conversationButtonTest(user);
 
         String imageLocation = Constants.PROFILE_PICTURE_PATH + currentUserEmail;
-        ImageView drawerImage = (ImageView) findViewById(R.id.accountImageView);
+        final ImageView drawerImage = (ImageView) findViewById(R.id.accountImageView);
         TextView drawerUsername = (TextView) findViewById(R.id.accountNameView);
         TextView drawerEmail = (TextView) findViewById(R.id.accountEmailView);
+
         if (drawerUsername != null) {
             drawerUsername.setText(user.getDisplayName());
         }
@@ -288,9 +308,28 @@ public class MainActivity extends AppCompatActivity
         if (drawerEmail != null) {
             drawerEmail.setText(user.getEmail());
         }
-        StorageReference storageRef = FirebaseStorage.getInstance()
-                .getReference().child(imageLocation);
-        LoadImage.loadImages(storageRef, drawerImage);
+
+        if (drawerImage != null) {
+            mHeaderDatabaseReference
+                    .addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+                            if (user != null && user.getProfilePicLocation() != null) {
+                                StorageReference storageRef = FirebaseStorage.getInstance()
+                                        .getReference().child(user.getProfilePicLocation());
+
+                                LoadImage.loadImages(storageRef, drawerImage);
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
 
         //Initialize screen variables
         mChatListView = (ListView) findViewById(R.id.chatListView);
@@ -326,7 +365,7 @@ public class MainActivity extends AppCompatActivity
                                                     .getReference().child(msgSender.getProfilePicLocation());
                                             LoadImage.loadImages(storageRef, senderPic);
 
-                                            LoadImage.loadImages(storageRef, drawerAccountView);
+//                                            LoadImage.loadImages(storageRef, drawerAccountView);
                                         }
                                     }
 
@@ -448,7 +487,6 @@ public class MainActivity extends AppCompatActivity
     public void sendInvitation() {
         Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
                 .setMessage(getString(R.string.invitation_message))
-                .setCallToActionText(getString(R.string.invitation_cta))
                 .build();
         startActivityForResult(intent, Constants.REQUEST_INVITE);
     }

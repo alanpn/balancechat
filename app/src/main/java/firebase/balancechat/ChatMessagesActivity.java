@@ -267,28 +267,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
         });
     }
 
-//    public void addListeners() {
-//        mMessageField.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                if (charSequence.toString().trim().length() > 0) {
-//                    mSendButton.setEnabled(true);
-//                } else {
-//                    mSendButton.setEnabled(false);
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//            }
-//        });
-//    }
 
-    //If voice message add them to Firebase.Storage
     public void addVoiceToMessages(String voiceLocation) {
         final DatabaseReference pushRef = mMessageDatabaseReference.push();
         final String pushKey = pushRef.getKey();
@@ -341,7 +320,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
         String messageString = mMessageField.getText().toString();
         if (isMessageWrong(messageString)) return;
         Message message = new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()), messageString, "MESSAGE");
-
 
 
         //Create HashMap for Pushing
