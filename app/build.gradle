@@ -31,6 +31,8 @@ dependencies {
     implementation 'com.squareup.okhttp:okhttp-urlconnection:2.7.4'
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
     implementation 'com.github.tgio:rncryptor-native:0.0.9'
+    implementation 'com.github.medyo:android-about-page:1.2.4'
+    implementation 'com.webianks.library:easy-feedback:1.0.2'
 
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.1'

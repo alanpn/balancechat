@@ -34,6 +34,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.tapadoo.alerter.Alerter;
+import com.webianks.easy_feedback.EasyFeedback;
+import com.webianks.easy_feedback.FeedbackActivity;
 
 import java.util.Arrays;
 
@@ -49,7 +51,6 @@ import tgio.rncryptor.RNCryptorNative;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-//    private FirebaseAuth mFirebaseAuth;
     private FirebaseListAdapter mChatAdapter;
     private FirebaseDatabase database;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -65,7 +66,6 @@ public class MainActivity extends AppCompatActivity
     private String mUsername;
     private RNCryptorNative RNCryptor = new RNCryptorNative();
     private String userEmail;
-//    private FirebaseUser user;
 
 
     @Override
@@ -121,6 +121,14 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void addFeedback(View view){
+        new EasyFeedback.Builder(this)
+                .withEmail("denisrondalev@gmail.com")
+                .withSystemInfo()
+                .build()
+                .start();
+    }
+
     /* connection test at the entry */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -163,20 +171,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-
         super.onResume();
         FirebaseAuth.getInstance().addAuthStateListener(mAuthStateListener);
-
-
-//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//        if (user != null) {
-//            onSignIn(user);
-//        }
     }
 
     @Override
     protected void onRestart() {
-
         super.onRestart();
 
     }
@@ -473,6 +473,14 @@ public class MainActivity extends AppCompatActivity
             intent = new Intent(MainActivity.this, SettingsActivity.class);
         } else if (id == R.id.nav_signout) {
             AuthUI.getInstance().signOut(this);
+        } else if (id == R.id.nav_about) {
+            intent = new Intent(MainActivity.this, AboutActivity.class);
+        } else if (id == R.id.nav_feedback) {
+            new EasyFeedback.Builder(this)
+                    .withEmail("denisrondalev@gmail.com")
+                    .withSystemInfo()
+                    .build()
+                    .start();
         }
 
         if (intent != null) {

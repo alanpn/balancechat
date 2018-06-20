@@ -46,7 +46,9 @@
             style="@style/MenuButtonsSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_home" />
+            android:onClick="addFeedback"
+            android:src="@drawable/ic_action_home"
+            app:fab_label="Report Bug"/>
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/add_conversation"

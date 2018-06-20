@@ -61,5 +61,7 @@
     <string name="set_settings">Set</string>
     <string name="PASS_IS_TOO_SHORT">Min pass length:</string>
     <string name="UPDATED">Updated</string>
+    <string name="drawer_item_about">About Us</string>
+    <string name="drawer_item_feedback">Report Bug</string>
 
 </resources>

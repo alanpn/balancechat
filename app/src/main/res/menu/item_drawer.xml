@@ -13,6 +13,16 @@
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_menu_share"
             android:title="@string/drawer_item_invitation" />
+
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_about"
+            android:title="@string/drawer_item_about" />
+
+        <item
+            android:id="@+id/nav_feedback"
+            android:icon="@drawable/ic_menu_feedback"
+            android:title="@string/drawer_item_feedback" />
     </group>
 
     <item android:title="@string/account">

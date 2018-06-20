@@ -1,9 +1,11 @@
 package firebase.balancechat;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,7 +56,7 @@ public class ContactActivity extends AppCompatActivity {
     private void showUserList() {
         mFriendListAdapter = new FirebaseListAdapter<User>(this, User.class, R.layout.item_contacts, mUserDatabaseReference) {
             @Override
-            protected void populateView(final View view, User user, final int position) {
+            protected void populateView(final View view, final User user, final int position) {
 
                 final String email = StringEncoding.encodeString(user.getEmail());
                 //Check if this user is already your friend
@@ -82,6 +84,7 @@ public class ContactActivity extends AppCompatActivity {
                     }
                 });
 
+
                 if (user.getProfilePicLocation() != null && user.getProfilePicLocation().length() > 0) {
                     StorageReference storageRef = FirebaseStorage.getInstance()
                             .getReference().child(user.getProfilePicLocation());
@@ -90,17 +93,16 @@ public class ContactActivity extends AppCompatActivity {
 
                 ((TextView) view.findViewById(R.id.messageTextView)).setText(user.getUsername());
                 ((TextView) view.findViewById(R.id.nameTextView)).setText(StringEncoding.decodeString(email));
+
                 (view.findViewById(R.id.addFriend)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Add this user to your friends list, by email
                         addNewFriend(email);
                     }
                 });
                 (view.findViewById(R.id.removeFriend)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Add this user to your friends list, by email
                         removeFriend(email);
                     }
                 });
@@ -128,7 +130,6 @@ public class ContactActivity extends AppCompatActivity {
     }
 
     private void removeFriend(String friendEmail) {
-        //Get current user logged in by email
         final String userLoggedIn = mFirebaseAuth.getCurrentUser().getEmail();
         final DatabaseReference friendsRef = mFirebaseDatabase.getReference(Constants.FRIEND_CHILD
                 + "/" + StringEncoding.encodeString(userLoggedIn));
@@ -136,7 +137,6 @@ public class ContactActivity extends AppCompatActivity {
     }
 
     private void addNewFriend(String newFriendEmail) {
-        //Get current user logged in by email
         final String userLoggedIn = mFirebaseAuth.getCurrentUser().getEmail();
         //final String newFriendEncodedEmail = StringEncoding.encodeString(newFriendEmail);
         final DatabaseReference friendsRef = mFirebaseDatabase.getReference(Constants.FRIEND_CHILD
@@ -149,7 +149,7 @@ public class ContactActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mCurrentUserEmail = StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail());
-        //Eventually this list will filter out users that are already your friend
+
         mUserDatabaseReference = mFirebaseDatabase.getReference().child(Constants.USER_CHILD);
         mCurrentUsersFriends = mFirebaseDatabase.getReference().child(Constants.FRIEND_CHILD
                 + "/" + StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()));

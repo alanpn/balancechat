@@ -47,6 +47,13 @@
         </activity>
 
         <activity
+            android:name=".AboutActivity"
+            android:label="About Us"
+            android:theme="@style/AppTheme">
+
+        </activity>
+
+        <activity
             android:name=".ChatMessagesActivity"
             android:label="(Name of Chat)"
             android:theme="@style/AppTheme">
