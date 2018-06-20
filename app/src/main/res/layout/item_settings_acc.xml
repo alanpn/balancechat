@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:isScrollContainer="false"
+    android:overScrollMode="never"
+    android:scrollbars="horizontal"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/settingsInputLayout1"
+        android:layout_width="0dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/settingsInputLayout2"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/settingsInputEditText1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Edit your Password"
+            android:inputType="text" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/settingsInputLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settingsInputLayout1">
+
+        <EditText
+            android:id="@+id/settingsInputEditText2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Edit your Username"
+            android:inputType="text" />
+    </android.support.design.widget.TextInputLayout>
+
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/imageButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end|center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/user_picture"
+        android:src="@drawable/ic_action_edit"
+        app:fab_colorNormal="@color/colorDeepTeal"
+        app:fab_colorPressed="@color/colorPrimaryLight"
+        app:fab_colorRipple="@color/colorRipple"
+        app:fab_size="mini"
+        app:layout_constraintBottom_toBottomOf="@+id/settingsInputLayout1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/settingsInputLayout1" />
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/imageButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end|center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/user_picture"
+        android:src="@drawable/ic_action_edit"
+        app:fab_colorNormal="@color/colorDeepTeal"
+        app:fab_colorPressed="@color/colorPrimaryLight"
+        app:fab_colorRipple="@color/colorRipple"
+        app:fab_size="mini"
+        app:layout_constraintBottom_toBottomOf="@+id/settingsInputLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/settingsInputLayout2" />
+
+
+</android.support.constraint.ConstraintLayout>

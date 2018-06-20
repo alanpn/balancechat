@@ -49,7 +49,7 @@
     <string name="greeting">Welcome back, </string>
     <string name="login_fail">Login Failed. Please Try Again.</string>
     <string name="sign_out_msg">You signed out of the account.</string>
-    <string name="invitation_message">Please join me for a balancechat: https://bit.ly/2JJlIba</string>
+    <string name="invitation_message">Please join me for a balancechat: http://bit.ly/2I76J5q</string>
     <string name="invitation_title">Balance Invite</string>
     <string name="waiting_for_loading">Load in progress…</string>
     <string name="user_picture">User Picture</string>
