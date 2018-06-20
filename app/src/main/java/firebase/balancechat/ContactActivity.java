@@ -59,7 +59,7 @@ public class ContactActivity extends AppCompatActivity {
             protected void populateView(final View view, final User user, final int position) {
 
                 final String email = StringEncoding.encodeString(user.getEmail());
-                //Check if this user is already your friend
+
                 final DatabaseReference friendRef =
                         mFirebaseDatabase.getReference(Constants.FRIEND_CHILD
                                 + "/" + mCurrentUserEmail + "/" + StringEncoding.encodeString(email));

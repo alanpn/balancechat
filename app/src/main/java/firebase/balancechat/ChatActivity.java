@@ -56,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
     private TextView mFriendsInChat;
     private EditText mChatName;
 
-    //Objects for Chat
+
     private Chat mChat;
     private DatabaseReference mUserDatabaseRef;
     private ImageButton mCreateButton;
@@ -94,7 +94,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void showFriendsList() {
-        //TODO: This list should not show your own userid..
         mFriendListAdapter = new FirebaseListAdapter<String>(this, String.class, R.layout.item_contacts, mFriendsLocationDatabaseReference) {
             @Override
             protected void populateView(final View view, final String friend, final int position) {
@@ -129,19 +128,17 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 });
 
-                //Hide remove button by default, we have to do this because we reuse the view
+
                 if (mChat.getFriends().isEmpty()) {
                     view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
                 }
-                //view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
                 (view.findViewById(R.id.addFriend)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Log.e(TAG, "Clicking row: " + position);
                         Log.e(TAG, "Clicking user: " + friend);
 
-                        //TODO: Complete the creating of Chat object, then add to firebase
-                        //Add friend to chat
+
                         if (mChat.appendFriend(addFriend)) {
                             String friendsString = "";
                             for (Friend f : mChat.getFriends()) {
@@ -152,17 +149,14 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         view.findViewById(R.id.removeFriend).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.addFriend).setVisibility(View.GONE);
-                        Log.e(TAG, "Adding to chat: " + friend);
                     }
                 });
                 (view.findViewById(R.id.removeFriend)).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.e(TAG, "Clicking row: " + position);
-                        Log.e(TAG, "Clicking user: " + friend);
 
-                        //TODO: Add remove methods
-                        mChat.removeFriend(addFriend); //the name add Friend here is not appropriate
+
+                        mChat.removeFriend(addFriend);
                         String friendsString = "";
                         for (Friend f : mChat.getFriends()) {
                             friendsString += f.getEmail() + ", ";
@@ -176,7 +170,6 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         view.findViewById(R.id.addFriend).setVisibility(View.VISIBLE);
                         view.findViewById(R.id.removeFriend).setVisibility(View.GONE);
-                        Log.e(TAG, "Removing from chat: " + friend);
                     }
                 });
             }
@@ -212,14 +205,14 @@ public class ChatActivity extends AppCompatActivity {
         mChat.setUid(pushKey);
         mChat.setChatName(mChatName.getText().toString());
 
-        //Create HashMap for Pushing Conv
+
         HashMap<String, Object> chatItemMap = new HashMap<String, Object>();
         HashMap<String, Object> chatObj = (HashMap<String, Object>) new ObjectMapper()
                 .convertValue(mChat, Map.class);
         chatItemMap.put("/" + pushKey, chatObj);
         chatRef.updateChildren(chatItemMap);
 
-        //Create corresponding message location for this chat
+
         String initialMessage = mFriendsInChat.getText().toString();
         Message initialMessages =
                 new Message("System", initialMessage);
@@ -231,15 +224,11 @@ public class ChatActivity extends AppCompatActivity {
             initMsgRef.child(msgPushKey).setValue(initialMessages);
         }
 
-        //Must add chat reference under every user object. Chat/User/Chats[chat1, chat2 ..]
-        //Add to current users chat object
-        //TODO: OPTIMIZATION!! decide how we will solve data replication issue, we could just send chat id
-        // but this would require more complex queries on other pages
         chatItemMap = new HashMap<String, Object>();
-        chatItemMap.put("/chats/" + pushKey, chatObj); //repushes chat obj -- Not space efficient
-        mCurrentUserDatabaseReference.updateChildren(chatItemMap); //Adds Chatkey to users chats
+        chatItemMap.put("/chats/" + pushKey, chatObj);
+        mCurrentUserDatabaseReference.updateChildren(chatItemMap);
 
-        //Push chat to all friends
+
         for (Friend f : mChat.getFriends()) {
             mFriendDatabaseReference = mFirebaseDatabase.getReference().child(Constants.USER_CHILD
                     + "/" + StringEncoding.encodeString(f.getEmail()));

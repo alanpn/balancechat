@@ -141,7 +141,7 @@ public class ChatMessagesActivity extends AppCompatActivity {
 
     }
 
-    //Add listener for on completion of image selection
+
     public void openImageSelector() {
         mphotoPickerButton = (ImageButton) findViewById(R.id.photoPickerButton);
         mProgress = new ProgressDialog(this);
@@ -249,7 +249,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
         mProgress.show();
 
         Uri uri = Uri.fromFile(new File(mFileName));
-        //Keep all voice for a specific chat grouped together
         final String voiceLocation = "Voice" + "/" + messageId;
         final String voiceLocationId = voiceLocation + "/" + uri.getLastPathSegment();
         final String uniqueId = UUID.randomUUID().toString();
@@ -271,11 +270,9 @@ public class ChatMessagesActivity extends AppCompatActivity {
     public void addVoiceToMessages(String voiceLocation) {
         final DatabaseReference pushRef = mMessageDatabaseReference.push();
         final String pushKey = pushRef.getKey();
-        //Create message object with text/voice etc
         Message message =
                 new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()),
                         "Message: Voice Sent", "VOICE", voiceLocation);
-        //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
         HashMap<String, Object> messageObj = (HashMap<String, Object>) new ObjectMapper()
                 .convertValue(message, Map.class);
@@ -297,7 +294,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
         Message message =
                 new Message(StringEncoding.encodeString(mFirebaseAuth.getCurrentUser().getEmail()),
                         "Message: Image Sent", "IMAGE", imageLocation);
-        //Create HashMap for Pushing
         HashMap<String, Object> messageItemMap = new HashMap<String, Object>();
         HashMap<String, Object> messageObj = (HashMap<String, Object>) new ObjectMapper()
                 .convertValue(message, Map.class);
@@ -313,7 +309,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
 
 
     public void sendMessage(View view) {
-        //final DatabaseReference messageRef = mFirebaseDatabase.getReference(Constants.MESSAGE_LOCATION);
         final DatabaseReference pushRef = mMessageDatabaseReference.push();
         final String pushKey = pushRef.getKey();
 
@@ -371,10 +366,10 @@ public class ChatMessagesActivity extends AppCompatActivity {
 
                 timeTextView.setText(DateFormat.format(Constants.MESSAGE_TIME_FORMAT, message.getTimestamp()));
 
-                //set message and sender text
+
                 messageText.setText(RNCryptor.decrypt(message.getMessage(), Constants.ENCRYPTION_KEY));
                 senderText.setText(StringEncoding.decodeString(message.getSender()));
-                //If you sent this message, right align
+
                 String mSender = message.getSender();
 
                 if (mSender.equals(currentUserEmail)) {
@@ -465,11 +460,8 @@ public class ChatMessagesActivity extends AppCompatActivity {
                     if (message.getContentType().equals("VOICE")) {
                         //show play button
                         activateVoiceMsg.setVisibility(View.VISIBLE);
-                        //hide imageview
                         imageView.setVisibility(View.GONE);
                         imageView.setImageDrawable(null);
-                        //line below will reduce padding further on play audio image if necessary
-                        //individMessageLayout.setPadding(10,0,0,10);
                         activateVoiceMsg.setOnClickListener(new View.OnClickListener() {
 
                             @Override
@@ -483,7 +475,6 @@ public class ChatMessagesActivity extends AppCompatActivity {
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception exception) {
-                                        // Handle any errors
                                     }
                                 });
 
@@ -510,19 +501,15 @@ public class ChatMessagesActivity extends AppCompatActivity {
 
         }
         mediaPlayer.prepareAsync();
-        //You can show progress dialog here untill it prepared to play
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                //Now dismis progress dialog, Media palyer will start playing
                 mp.start();
             }
         });
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                // dissmiss progress bar here. It will come here when MediaPlayer
-                //  is not able to play file. You can show error message to user
                 return false;
             }
         });
